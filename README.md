@@ -88,34 +88,6 @@ Before running this project, make sure you have:
 
    The application will be available at `http://localhost:3000`
 
-## 📁 Project Structure
-
-```
-beach-cleanup-management/
-├── app/                          # Next.js App Router
-│   ├── admin/                    # Admin portal pages
-│   │   ├── dashboard/           # Admin dashboard
-│   │   └── events/              # Event management
-│   ├── volunteer/               # Volunteer portal pages
-│   │   └── dashboard/           # Volunteer dashboard
-│   ├── api/                     # API routes
-│   │   ├── auth/                # Authentication endpoints
-│   │   ├── admin/               # Admin API endpoints
-│   │   └── volunteer/           # Volunteer API endpoints
-│   ├── login/                   # Login page
-│   ├── register/                # Registration page
-│   └── globals.css              # Global styles
-├── components/                   # Reusable components
-│   └── ui/                      # UI components
-├── lib/                         # Utility libraries
-│   ├── auth.js                  # Authentication utilities
-│   ├── prisma.js                # Prisma client
-│   └── qr-utils.js              # QR code utilities
-├── prisma/                      # Database schema and migrations
-│   └── schema.prisma            # Prisma schema
-└── public/                      # Static assets
-```
-
 ## 🗄️ Database Schema
 
 The application uses the following main entities:
@@ -141,54 +113,6 @@ The application uses the following main entities:
 - **Accessible design** with proper focus management
 - **Professional styling** with Tailwind CSS
 
-## 📱 Key Pages
-
-### Public Pages
-- **Home** (`/`): Landing page with feature overview
-- **Login** (`/login`): User authentication
-- **Register** (`/register`): New user registration
-
-### Admin Pages
-- **Dashboard** (`/admin/dashboard`): Overview and statistics
-- **Events List** (`/admin/events`): Manage all events
-- **Create Event** (`/admin/events/create`): Create new events
-- **Event Details** (`/admin/events/[id]`): View event details and manage volunteers
-
-### Volunteer Pages
-- **Dashboard** (`/volunteer/dashboard`): Personal overview
-- **Browse Events** (`/volunteer/events`): Discover and register for events
-- **My Events** (`/volunteer/my-events`): Personal event history
-
-## 🔧 API Endpoints
-
-### Authentication
-- `POST /api/auth/login` - User login
-- `POST /api/auth/register` - User registration
-
-### Admin APIs
-- `GET /api/admin/dashboard` - Dashboard statistics
-- `GET /api/admin/events` - List all events
-- `POST /api/admin/events` - Create new event
-- `GET /api/admin/events/[id]` - Get event details
-- `DELETE /api/admin/events/[id]` - Delete event
-
-### Volunteer APIs
-- `GET /api/volunteer/dashboard` - Volunteer dashboard data
-
-## 🚀 Deployment
-
-### Production Build
-```bash
-npm run build
-npm start
-```
-
-### Environment Variables for Production
-Ensure all environment variables are properly set:
-- `DATABASE_URL`: Production PostgreSQL connection string
-- `JWT_SECRET`: Strong, unique secret key
-- `NEXT_PUBLIC_BASE_URL`: Production domain URL
-
 ## 🧪 Development
 
 ### Running in Development Mode
@@ -207,26 +131,6 @@ npx prisma db push --force-reset
 # Generate new migration
 npx prisma migrate dev --name migration_name
 ```
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🆘 Support
-
-If you encounter any issues or have questions:
-
-1. Check the [Issues](../../issues) page for existing solutions
-2. Create a new issue with detailed information
-3. Include error messages, screenshots, and steps to reproduce
 
 ## 🌟 Acknowledgments
 
