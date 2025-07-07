@@ -30,7 +30,6 @@ export default function Register() {
     e.preventDefault()
     setIsLoading(true)
     setError('')
-    alert()
 
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match')
