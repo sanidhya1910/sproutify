@@ -49,7 +49,7 @@ export default function Home() {
               <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-teal-600 rounded-full flex items-center justify-center">
                 <Waves className="w-5 h-5 text-white" />
               </div>
-              <span className="ml-2 text-xl font-bold text-gray-900">Beach Cleanup</span>
+              <span className="ml-2 text-xl font-bold text-gray-900">Coastal Crew</span>
             </div>
             <div className="flex items-center space-x-4">
               {user ? (
@@ -172,7 +172,7 @@ export default function Home() {
               <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-teal-600 rounded-full flex items-center justify-center">
                 <Waves className="w-5 h-5 text-white" />
               </div>
-              <span className="ml-2 text-xl font-bold">Beach Cleanup</span>
+              <span className="ml-2 text-xl font-bold">Coastal Crew</span>
             </div>
             <p className="text-gray-400">
               Making our oceans cleaner, one beach at a time.
