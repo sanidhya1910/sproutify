@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Calendar, Users, QrCode, ArrowRight, MapPin, ClipboardList, BookOpen, Earth } from 'lucide-react';
+import { Calendar, Users, QrCode, ArrowRight, MapPin, ClipboardList, BookOpen, Earth, LeafIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function Home() {
@@ -62,7 +62,9 @@ const features = [
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
               >
-                <Earth className="w-6 h-6 text-white" />
+              <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-teal-500 rounded-full flex items-center justify-center">
+                <LeafIcon className="w-6 h-6 text-white" />
+              </div>
               </motion.div>
               <span className="ml-2 text-2xl font-bold text-gray-900">Coastal Crew</span>
             </div>
