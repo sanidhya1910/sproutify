@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Calendar, Users, QrCode, ArrowRight, MapPin, ClipboardList, BookOpen } from 'lucide-react';
+import { Calendar, Users, QrCode, ArrowRight, MapPin, ClipboardList, BookOpen, Earth } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function Home() {
@@ -62,7 +62,7 @@ const features = [
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
               >
-                <Calendar className="w-6 h-6 text-white" />
+                <Earth className="w-6 h-6 text-white" />
               </motion.div>
               <span className="ml-2 text-2xl font-bold text-gray-900">Coastal Crew</span>
             </div>
