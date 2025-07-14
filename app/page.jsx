@@ -296,9 +296,15 @@ const features = [
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <div className="flex items-center justify-center mb-4">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-teal-600 rounded-full flex items-center justify-center">
-                <div className="w-5 h-5 text-white" />
+            <motion.div
+                className="w-10 h-10 bg-gradient-to-r from-blue-500 to-teal-500 rounded-full flex items-center justify-center"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+              >
+              <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-teal-500 rounded-full flex items-center justify-center">
+                <LeafIcon className="w-6 h-6 text-white" />
               </div>
+              </motion.div>
               <span className="ml-2 text-xl font-bold">Coastal Crew</span>
             </div>
             <p className="text-gray-400">
