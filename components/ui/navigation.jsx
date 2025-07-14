@@ -32,7 +32,7 @@ export default function Navigation() {
     { href: '/admin/dashboard', label: 'Dashboard', icon: Home },
     { href: '/admin/events', label: 'Events', icon: Calendar },
     { href: '/admin/volunteers', label: 'Volunteers', icon: Users },
-    { href: '/admin/qr-scanner', label: 'QR Scanner', icon: QrCode },
+    // { href: '/admin/qr-scanner', label: 'QR Scanner', icon: QrCode },
   ]
 
   const volunteerNavItems = [

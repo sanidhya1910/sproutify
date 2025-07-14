@@ -1,30 +1,25 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { useParams } from 'next/navigation'
 import Navigation from '@/components/ui/navigation'
 import AuthGuard from '@/components/ui/auth-guard'
-import { Calendar, MapPin, Clock, Users, Shield, ArrowLeft, CheckCircle, AlertCircle, UserPlus, UserMinus } from 'lucide-react'
+import { Calendar, MapPin, Clock, CheckCircle, Eye, UserMinus, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
 
-export default function EventDetails() {
-  const params = useParams()
-  const [event, setEvent] = useState(null)
-  const [isRegistered, setIsRegistered] = useState(false)
+export default function MyEvents() {
+  const [events, setEvents] = useState([])
+  const [activeTab, setActiveTab] = useState('upcoming') // upcoming, past, all
   const [isLoading, setIsLoading] = useState(true)
-  const [registrationLoading, setRegistrationLoading] = useState(false)
+  const [unregisterLoading, setUnregisterLoading] = useState(new Set())
 
   useEffect(() => {
-    if (params.id) {
-      fetchEvent()
-      checkRegistration()
-    }
-  }, [params.id])
+    fetchMyEvents()
+  }, [])
 
-  const fetchEvent = async () => {
+  const fetchMyEvents = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`/api/volunteer/events/${params.id}`, {
+      const response = await fetch('/api/volunteer/my-events', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -32,65 +27,21 @@ export default function EventDetails() {
       
       if (response.ok) {
         const data = await response.json()
-        setEvent(data)
+        setEvents(data)
       }
     } catch (error) {
-      console.error('Error fetching event:', error)
+      console.error('Error fetching my events:', error)
     } finally {
       setIsLoading(false)
     }
   }
 
-  const checkRegistration = async () => {
-    try {
-      const token = localStorage.getItem('token')
-      const response = await fetch(`/api/volunteer/events/${params.id}/registration`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-      
-      if (response.ok) {
-        const data = await response.json()
-        setIsRegistered(data.isRegistered)
-      }
-    } catch (error) {
-      console.error('Error checking registration:', error)
+  const handleUnregister = async (eventId) => {
+    if (!confirm('Are you sure you want to unregister from this event?')) {
+      return
     }
-  }
 
-  const handleRegister = async () => {
-    setRegistrationLoading(true)
-    
-    try {
-      const token = localStorage.getItem('token')
-      const response = await fetch('/api/volunteer/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ eventId: params.id })
-      })
-
-      if (response.ok) {
-        setIsRegistered(true)
-        // Refresh event data to update registration count
-        fetchEvent()
-      } else {
-        const data = await response.json()
-        alert(data.message || 'Registration failed')
-      }
-    } catch (error) {
-      console.error('Error registering for event:', error)
-      alert('Something went wrong. Please try again.')
-    } finally {
-      setRegistrationLoading(false)
-    }
-  }
-
-  const handleUnregister = async () => {
-    setRegistrationLoading(true)
+    setUnregisterLoading(prev => new Set(prev).add(eventId))
     
     try {
       const token = localStorage.getItem('token')
@@ -100,13 +51,12 @@ export default function EventDetails() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ eventId: params.id })
+        body: JSON.stringify({ eventId })
       })
 
       if (response.ok) {
-        setIsRegistered(false)
-        // Refresh event data to update registration count
-        fetchEvent()
+        // Remove the event from the list
+        setEvents(events.filter(event => event.id !== eventId))
       } else {
         const data = await response.json()
         alert(data.message || 'Unregistration failed')
@@ -115,7 +65,11 @@ export default function EventDetails() {
       console.error('Error unregistering from event:', error)
       alert('Something went wrong. Please try again.')
     } finally {
-      setRegistrationLoading(false)
+      setUnregisterLoading(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(eventId)
+        return newSet
+      })
     }
   }
 
@@ -124,11 +78,32 @@ export default function EventDetails() {
     const event = new Date(eventDate)
     
     if (event < now) {
-      return { label: 'Past Event', color: 'bg-gray-100 text-gray-800', disabled: true }
+      return { label: 'Past', color: 'bg-gray-100 text-gray-800', isPast: true }
     } else {
-      return { label: 'Upcoming Event', color: 'bg-green-100 text-green-800', disabled: false }
+      return { label: 'Upcoming', color: 'bg-green-100 text-green-800', isPast: false }
     }
   }
+
+  const getFilteredEvents = () => {
+    const now = new Date()
+    
+    switch (activeTab) {
+      case 'upcoming':
+        return events.filter(event => new Date(event.date) >= now)
+      case 'past':
+        return events.filter(event => new Date(event.date) < now)
+      default:
+        return events
+    }
+  }
+
+  const filteredEvents = getFilteredEvents()
+
+  const tabs = [
+    { id: 'upcoming', label: 'Upcoming Events', count: events.filter(e => new Date(e.date) >= new Date()).length },
+    { id: 'past', label: 'Past Events', count: events.filter(e => new Date(e.date) < new Date()).length },
+    { id: 'all', label: 'All Events', count: events.length }
+  ]
 
   if (isLoading) {
     return (
@@ -143,246 +118,161 @@ export default function EventDetails() {
     )
   }
 
-  if (!event) {
-    return (
-      <AuthGuard requiredRole="VOLUNTEER">
-        <div className="min-h-screen bg-gray-50">
-          <Navigation />
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="text-center">
-              <h1 className="text-2xl font-bold text-gray-900">Event not found</h1>
-              <Link href="/volunteer/events" className="text-blue-600 hover:text-blue-700 mt-4 inline-block">
-                Back to Events
-              </Link>
-            </div>
-          </div>
-        </div>
-      </AuthGuard>
-    )
-  }
-
-  const status = getEventStatus(event.date)
-
   return (
     <AuthGuard requiredRole="VOLUNTEER">
       <div className="min-h-screen bg-gray-50">
         <Navigation />
         
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Header */}
           <div className="mb-8">
-            <Link
-              href="/volunteer/events"
-              className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-4 transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Events
-            </Link>
-            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between">
-              <div className="flex-1">
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">{event.title}</h1>
-                <div className="flex items-center space-x-3">
-                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${status.color}`}>
-                    {status.label}
-                  </span>
-                  {isRegistered && (
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                      <CheckCircle className="w-4 h-4 mr-1" />
-                      Registered
+            <h1 className="text-3xl font-bold text-gray-900">My Events</h1>
+            <p className="text-gray-600 mt-2">Manage your event registrations and view your cleanup history</p>
+          </div>
+
+          {/* Tabs */}
+          <div className="bg-white rounded-lg shadow-sm mb-6">
+            <div className="border-b border-gray-200">
+              <nav className="-mb-px flex space-x-8 px-6">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                      activeTab === tab.id
+                        ? 'border-blue-500 text-blue-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    }`}
+                  >
+                    {tab.label}
+                    <span className={`ml-2 py-0.5 px-2 rounded-full text-xs ${
+                      activeTab === tab.id
+                        ? 'bg-blue-100 text-blue-600'
+                        : 'bg-gray-100 text-gray-600'
+                    }`}>
+                      {tab.count}
                     </span>
-                  )}
-                </div>
-              </div>
-              
-              {!status.disabled && (
-                <div className="mt-4 sm:mt-0 sm:ml-4">
-                  {isRegistered ? (
-                    <button
-                      onClick={handleUnregister}
-                      disabled={registrationLoading}
-                      className="inline-flex items-center px-6 py-3 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {registrationLoading ? (
-                        <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                          Unregistering...
-                        </>
-                      ) : (
-                        <>
-                          <UserMinus className="w-4 h-4 mr-2" />
-                          Unregister
-                        </>
-                      )}
-                    </button>
-                  ) : (
-                    <button
-                      onClick={handleRegister}
-                      disabled={registrationLoading}
-                      className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {registrationLoading ? (
-                        <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                          Registering...
-                        </>
-                      ) : (
-                        <>
-                          <UserPlus className="w-4 h-4 mr-2" />
-                          Register for Event
-                        </>
-                      )}
-                    </button>
-                  )}
-                </div>
-              )}
+                  </button>
+                ))}
+              </nav>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Event Details */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Basic Information */}
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-6">Event Information</h2>
+          {/* Events List */}
+          {filteredEvents.length === 0 ? (
+            <div className="bg-white rounded-lg shadow-sm p-12 text-center">
+              <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                {activeTab === 'upcoming' ? 'No upcoming events' : 
+                 activeTab === 'past' ? 'No past events' : 'No events registered'}
+              </h3>
+              <p className="text-gray-500 mb-6">
+                {activeTab === 'upcoming' ? 'You haven\'t registered for any upcoming events yet.' :
+                 activeTab === 'past' ? 'You haven\'t attended any events yet.' :
+                 'You haven\'t registered for any events yet.'}
+              </p>
+              {activeTab !== 'past' && (
+                <Link
+                  href="/volunteer/events"
+                  className="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Browse Events
+                </Link>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {filteredEvents.map((event) => {
+                const status = getEventStatus(event.date)
+                const isUnregistering = unregisterLoading.has(event.id)
+                const hasAttended = event.attendances && event.attendances.length > 0
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <div className="flex items-center">
-                      <MapPin className="w-5 h-5 text-gray-400 mr-3" />
-                      <div>
-                        <p className="text-sm font-medium text-gray-500">Location</p>
-                        <p className="text-gray-900">{event.location}</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center">
-                      <Calendar className="w-5 h-5 text-gray-400 mr-3" />
-                      <div>
-                        <p className="text-sm font-medium text-gray-500">Date</p>
-                        <p className="text-gray-900">{new Date(event.date).toLocaleDateString()}</p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    <div className="flex items-center">
-                      <Clock className="w-5 h-5 text-gray-400 mr-3" />
-                      <div>
-                        <p className="text-sm font-medium text-gray-500">Time</p>
-                        <p className="text-gray-900">{event.startTime} - {event.endTime}</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center">
-                      <Users className="w-5 h-5 text-gray-400 mr-3" />
-                      <div>
-                        <p className="text-sm font-medium text-gray-500">Volunteers</p>
-                        <p className="text-gray-900">
-                          {event._count.registrations} registered
-                          {event.expectedVolunteers && ` / ${event.expectedVolunteers} expected`}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+                return (
+                  <div key={event.id} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                    <div className="p-6">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-3 mb-2">
+                            <h3 className="text-lg font-semibold text-gray-900">{event.title}</h3>
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${status.color}`}>
+                              {status.label}
+                            </span>
+                            {hasAttended && (
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                <CheckCircle className="w-3 h-3 mr-1" />
+                                Attended
+                              </span>
+                            )}
+                          </div>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                            <div className="flex items-center text-sm text-gray-600">
+                              <MapPin className="w-4 h-4 mr-2 text-gray-400" />
+                              {event.location}
+                            </div>
+                            <div className="flex items-center text-sm text-gray-600">
+                              <Calendar className="w-4 h-4 mr-2 text-gray-400" />
+                              {new Date(event.date).toLocaleDateString()}
+                            </div>
+                            <div className="flex items-center text-sm text-gray-600">
+                              <Clock className="w-4 h-4 mr-2 text-gray-400" />
+                              {event.startTime} - {event.endTime}
+                            </div>
+                          </div>
+                          
+                          <p className="text-sm text-gray-600 line-clamp-2 mb-4">
+                            {event.description}
+                          </p>
 
-              {/* Description */}
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">About This Event</h3>
-                <p className="text-gray-700 leading-relaxed">{event.description}</p>
-              </div>
-
-              {/* Safety Instructions */}
-              {event.safetyInstructions && (
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <div className="flex items-center mb-4">
-                    <Shield className="w-5 h-5 text-orange-500 mr-2" />
-                    <h3 className="text-lg font-semibold text-gray-900">Safety Instructions</h3>
-                  </div>
-                  <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-                    <div className="flex items-start">
-                      <AlertCircle className="w-5 h-5 text-orange-500 mr-3 mt-0.5 flex-shrink-0" />
-                      <p className="text-gray-700 leading-relaxed">{event.safetyInstructions}</p>
+                          {event.safetyInstructions && (
+                            <div className="mb-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                              <div className="flex items-start">
+                                <AlertCircle className="w-4 h-4 text-orange-500 mr-2 mt-0.5 flex-shrink-0" />
+                                <div>
+                                  <p className="text-xs font-medium text-orange-800 mb-1">Safety Instructions</p>
+                                  <p className="text-xs text-orange-700 line-clamp-2">{event.safetyInstructions}</p>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        
+                        <div className="ml-6 flex flex-col space-y-2">
+                          <Link
+                            href={`/volunteer/events/${event.id}`}
+                            className="inline-flex items-center px-3 py-1.5 text-sm bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 transition-colors"
+                          >
+                            <Eye className="w-3 h-3 mr-1" />
+                            View Details
+                          </Link>
+                          
+                          {!status.isPast && (
+                            <button
+                              onClick={() => handleUnregister(event.id)}
+                              disabled={isUnregistering}
+                              className="inline-flex items-center px-3 py-1.5 text-sm bg-red-50 text-red-600 rounded-md hover:bg-red-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              {isUnregistering ? (
+                                <>
+                                  <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-red-600 mr-1"></div>
+                                  Unregistering...
+                                </>
+                              ) : (
+                                <>
+                                  <UserMinus className="w-3 h-3 mr-1" />
+                                  Unregister
+                                </>
+                              )}
+                            </button>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
+                )
+              })}
             </div>
-
-            {/* Sidebar */}
-            <div className="space-y-6">
-              {/* Registration Status */}
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Registration Status</h3>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600">Your Status</span>
-                    {isRegistered ? (
-                      <span className="inline-flex items-center text-green-600 font-medium">
-                        <CheckCircle className="w-4 h-4 mr-1" />
-                        Registered
-                      </span>
-                    ) : (
-                      <span className="text-gray-500">Not Registered</span>
-                    )}
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600">Total Registered</span>
-                    <span className="font-medium text-gray-900">{event._count.registrations}</span>
-                  </div>
-                  {event.expectedVolunteers && (
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-600">Expected</span>
-                      <span className="font-medium text-gray-900">{event.expectedVolunteers}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Event Organizer */}
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Event Organizer</h3>
-                <div>
-                  <p className="font-medium text-gray-900">{event.creator.name}</p>
-                  <p className="text-sm text-gray-500">{event.creator.email}</p>
-                  <p className="text-xs text-gray-400 mt-2">
-                    Event created on {new Date(event.createdAt).toLocaleDateString()}
-                  </p>
-                </div>
-              </div>
-
-              {/* What to Bring */}
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">What to Bring</h3>
-                <ul className="space-y-2 text-sm text-gray-600">
-                  <li className="flex items-center">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
-                    Reusable water bottle
-                  </li>
-                  <li className="flex items-center">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
-                    Sun protection (hat, sunscreen)
-                  </li>
-                  <li className="flex items-center">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
-                    Comfortable walking shoes
-                  </li>
-                  <li className="flex items-center">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
-                    Work gloves (if available)
-                  </li>
-                  <li className="flex items-center">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
-                    Positive attitude!
-                  </li>
-                </ul>
-                <p className="text-xs text-gray-500 mt-3">
-                  Cleanup supplies and trash bags will be provided
-                </p>
-              </div>
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </AuthGuard>
