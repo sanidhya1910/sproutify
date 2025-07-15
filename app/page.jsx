@@ -11,6 +11,7 @@ import Navbar from '@/components/common/Navbar';
 import FeaturesSection from '@/components/common/FeaturesSection';
 import EventList from '@/components/solutions/EventList';
 import FeaturedEventsSection from '@/app/featuredevents/FeaturedEvents';
+import AboutUs from '@/app/about/AboutUs';
 
 export default function Home() {
   const [user, setUser] = useState(null);
@@ -41,22 +42,7 @@ export default function Home() {
       <FeaturedEventsSection />
 
       {/* About Section */}
-      <section id="about-us" class="py-16 bg-gray-100">
-        <div class="container mx-auto px-4">
-          <h2 class="text-4xl font-bold mb-8">About Us</h2>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div class="mb-8 md:mb-0">
-              <img src="https://images.squarespace-cdn.com/content/v1/65272e44bd4f9022f58884d2/1702591117221-8YP0K9IP9GWZXZWLCXJ3/Option%2B2-2%2B%281%29.png" alt="About Us Image" class="rounded-lg shadow-lg" />
-            </div>
-            <div class="flex flex-col justify-center">
-              <p class="text-lg text-gray-700">
-                We are a passionate group of volunteers dedicated to preserving and enhancing the beauty and health of our beaches. Our mission is to educate, engage, and empower our community to take an active role in maintaining clean and sustainable coastal environments.
-              </p>
-              <a href="/about" class="mt-4 inline-block text-blue-500 font-medium hover:underline">Learn More</a>
-            </div>
-          </div>
-        </div>
-      </section>
+      <AboutUs />
 
       {/* Impact Section */}
       <ImpactSection />      
