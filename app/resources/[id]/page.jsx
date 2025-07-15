@@ -1,5 +1,4 @@
 import React from 'react';
-import ResourceItem from '@/components/resources/ResourceItem';
 
 const sampleResources = [
   { id: 1, title: "Guide to Beach Cleanup", description: "A comprehensive guide on how to organize effective beach cleanup events.", link: "#" },
