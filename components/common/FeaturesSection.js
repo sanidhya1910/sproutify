@@ -1,5 +1,11 @@
-import React from 'react';
-import { Calendar, Users, Leaf, Award, MessageCircle, BookOpen } from 'lucide-react';
+import {
+  Calendar,
+  Users,
+  Leaf,
+  Award,
+  MessageCircle,
+  BookOpen,
+} from "lucide-react";
 
 const Feature = ({ icon: Icon, title, description }) => (
   <div className="flex flex-col items-center p-4 md:p-6 text-center bg-white rounded-lg shadow">
@@ -14,7 +20,9 @@ const FeaturesSection = () => {
     <section className="py-16 bg-gray-50">
       <div className="container mx-auto text-center mb-8">
         <h2 className="text-3xl font-bold">Key Features</h2>
-        <p className="mt-4 text-xl text-gray-700">What makes Coastal Crew special:</p>
+        <p className="mt-4 text-xl text-gray-700">
+          What makes Coastal Crew special:
+        </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
