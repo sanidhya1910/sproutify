@@ -57,10 +57,10 @@ export default function Navigation() {
                 whileTap={{ scale: 0.9 }}
               >
               <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-teal-500 rounded-full flex items-center justify-center">
-                <LeafIcon className="w-6 h-6 text-white" />
+                <img src="/logo.png" alt="Logo"/>
               </div>
               </motion.div>
-              <span className="ml-2 text-xl font-bold text-gray-900">Coastal Crew</span>
+              <span className="ml-2 text-xl font-bold text-gray-900">Sproutify</span>
             </Link>
           </div>
 
