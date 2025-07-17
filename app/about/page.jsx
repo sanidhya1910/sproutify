@@ -3,10 +3,14 @@ import ImpactSection from './ImpactSection';
 import TeamMember from './TeamMember';
 import TestimonialsSection from './TestimonialsSection';
 import VolunteerStoriesSection from './VolunteerStoriesSection';
+import Navbar from '@/components/common/Navbar';
 
 const AboutPage = () => {
   return (
-    <div>
+      <div>
+      {/*Navigation Bar */}
+      <Navbar />
+
       {/* Existing ImpactSection */}
       <ImpactSection />
 
