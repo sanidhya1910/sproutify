@@ -29,6 +29,7 @@ const EventDetailPage = ({ params }) => {
       {/* Navbar */}
       <Navbar />
 
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12"></div>
       <div className="container mx-auto py-8">
         <h1 className="text-4xl font-bold mb-4">{event.title}</h1>
         <img src={event.imageUrl} alt={event.title} className="mb-4" />
