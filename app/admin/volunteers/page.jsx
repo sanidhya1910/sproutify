@@ -1,8 +1,8 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import Navigation from '@/components/ui/navigation'
-import AuthGuard from '@/components/ui/auth-guard'
+import Navigation from '@/components/chrome/navigation'
+import AuthGuard from '@/components/auth/auth-guard'
 import { Users, Search, Filter, Mail, Calendar, CheckCircle, Eye, UserCheck, Award, TrendingUp } from 'lucide-react'
 import Link from 'next/link'
 

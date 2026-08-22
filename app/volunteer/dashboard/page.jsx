@@ -36,8 +36,8 @@ import {
   Celebration,
 } from '@mui/icons-material';
 import { useQuery } from '@tanstack/react-query';
-import Navigation from '@/components/ui/navigation';
-import AuthGuard from '@/components/ui/auth-guard';
+import Navigation from '@/components/chrome/navigation';
+import AuthGuard from '@/components/auth/auth-guard';
 import Link from 'next/link';
 
 const fetchDashboardData = async () => {
