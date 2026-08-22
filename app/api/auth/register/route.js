@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { prisma } from '@/lib/prisma'
+import { getPrisma } from '@/lib/prisma'
 import { hashPassword, generateToken } from '@/lib/auth'
 
 const registerSchema = z.object({
@@ -12,6 +12,7 @@ const registerSchema = z.object({
 
 export async function POST(request) {
   try {
+    const prisma = await getPrisma()
     const body = await request.json()
     const parsed = registerSchema.safeParse(body)
 

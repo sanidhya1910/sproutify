@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { getPrisma } from '@/lib/prisma'
 import { verifyToken } from '@/lib/auth'
 import { markAttendance, AttendanceError } from '@/lib/attendance'
 
@@ -19,6 +19,7 @@ function requireVolunteer(request) {
 // decoupled from its primary-key `id`) — not the event id itself — so a
 // leaked/printed QR code can be rotated without touching the event record.
 async function resolveEvent(qrCode) {
+  const prisma = await getPrisma()
   const event = await prisma.event.findUnique({
     where: { qrCode },
     select: { id: true, title: true, location: true, date: true, startTime: true, endTime: true },
@@ -33,6 +34,7 @@ async function resolveEvent(qrCode) {
 // they're about to check into before they confirm.
 export async function GET(request, { params }) {
   try {
+    const prisma = await getPrisma()
     const decoded = requireVolunteer(request)
     const event = await resolveEvent(params.qrCode)
 
