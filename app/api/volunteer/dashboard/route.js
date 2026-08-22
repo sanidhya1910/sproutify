@@ -22,7 +22,7 @@ export async function GET(request) {
     }
 
     // Get stats
-    const [registeredEvents, attendedEvents, upcomingEventsCount] = await Promise.all([
+    const [registeredEvents, attendedEvents, upcomingEventsCount, user] = await Promise.all([
       prisma.eventRegistration.count({
         where: {
           userId: decoded.userId
@@ -42,8 +42,19 @@ export async function GET(request) {
             }
           }
         }
+      }),
+      prisma.user.findUnique({
+        where: { id: decoded.userId },
+        select: { ecoTokens: true }
       })
     ])
+
+    // Simple attendance-derived level: every 3 attended events levels a
+    // volunteer up, with progress showing how far through the current level
+    // they are. No separate model needed for this — it's fully derived.
+    const EVENTS_PER_LEVEL = 3
+    const volunteerLevel = 1 + Math.floor(attendedEvents / EVENTS_PER_LEVEL)
+    const progress = Math.round(((attendedEvents % EVENTS_PER_LEVEL) / EVENTS_PER_LEVEL) * 100)
 
     // Get upcoming events
     const upcomingEvents = await prisma.event.findMany({
@@ -88,7 +99,10 @@ export async function GET(request) {
         upcomingEvents: upcomingEventsCount
       },
       upcomingEvents,
-      recentEvents
+      recentEvents,
+      ecoTokens: user?.ecoTokens ?? 0,
+      volunteerLevel,
+      progress
     })
   } catch (error) {
     console.error('Dashboard error:', error)
