@@ -2,9 +2,32 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Navbar from '@/components/common/Navbar'
 import Link from 'next/link'
-import { Waves, Eye, EyeOff, Mail, Lock, User, UserCheck } from 'lucide-react'
+import {
+  Box,
+  Container,
+  Paper,
+  Typography,
+  TextField,
+  Button,
+  IconButton,
+  InputAdornment,
+  Alert,
+  Fade,
+  CircularProgress,
+  Divider,
+  Grid,
+  alpha,
+} from '@mui/material'
+import {
+  Visibility,
+  VisibilityOff,
+  Email,
+  Lock,
+  Person,
+} from '@mui/icons-material'
+import Navbar from '@/components/common/Navbar'
+import Footer from '@/components/common/Footer'
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -12,7 +35,6 @@ export default function Register() {
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'VOLUNTEER'
   })
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -38,6 +60,12 @@ export default function Register() {
       return
     }
 
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters long')
+      setIsLoading(false)
+      return
+    }
+
     try {
       const response = await fetch('/api/auth/register', {
         method: 'POST',
@@ -48,209 +76,236 @@ export default function Register() {
           name: formData.name,
           email: formData.email,
           password: formData.password,
-          role: formData.role
         }),
       })
 
       const data = await response.json()
 
-      console.log("##", data)
-
       if (response.ok) {
-        localStorage.setItem('token', data.token)
-        if (data.user.role === 'ADMIN') {
-          router.push('/admin/dashboard')
-        } else {
-          router.push('/volunteer/dashboard')
-        }
+        router.push('/login?message=Registration successful')
       } else {
         setError(data.message || 'Registration failed')
       }
     } catch (error) {
-      setError('Something went wrong. Please try again.')
+      console.error('Registration error:', error)
+      setError('An unexpected error occurred')
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-teal-50">
-      {/* Navbar */}
-      <Navbar />
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12"></div>
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-teal-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <div className="flex justify-center">
-            <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-teal-600 rounded-full flex items-center justify-center">
-              <Waves className="w-8 h-8 text-white" />
-            </div>
-          </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Join the Movement
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Create your account to get started
-          </p>
-        </div>
+      <Box
+        sx={{
+          minHeight: '100vh',
+          width: '100vw',
+          display: 'flex',
+          flexDirection: 'column',
+          background: 'linear-gradient(135deg, #2e7d32 0%, #81c784 100%)',
+        }}
+      >
+        <Navbar />
+        <Container
+          maxWidth="md"
+          sx={{
+            flex: 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: 'calc(100vh - 80px)',
+          }}
+        >
+          <Grid container spacing={0} alignItems="center" justifyContent="center">
+            <Grid item xs={12} md={7}>
+              <Fade in timeout={800}>
+                <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                  <Paper
+                    elevation={6}
+                    sx={{
+                      p: { xs: 3, md: 5 },
+                      width: '100%',
+                      maxWidth: 480,
+                      borderRadius: '24px',
+                      background: alpha('#fff', 0.85),
+                      backdropFilter: 'blur(12px)',
+                      boxShadow: '0 8px 32px rgba(46,125,50,0.15)',
+                      position: 'relative',
+                    }}
+                  >
+                    <Box sx={{ textAlign: 'center', mb: 3 }}>
+                      <Typography
+                        variant="h4"
+                        sx={{
+                          mb: 1,
+                          fontWeight: 700,
+                          color: 'primary.main',
+                          letterSpacing: 1,
+                        }}
+                      >
+                        Join Sproutify
+                      </Typography>
+                      <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+                        Start making a positive environmental impact
+                      </Typography>
+                    </Box>
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {error && (
-            <div className="bg-red-50 border border-red-200 rounded-md p-4">
-              <p className="text-sm text-red-600">{error}</p>
-            </div>
-          )}
+                    {error && (
+                      <Fade in>
+                        <Alert
+                          severity="error"
+                          sx={{
+                            mb: 2,
+                            borderRadius: '10px',
+                          }}
+                        >
+                          {error}
+                        </Alert>
+                      </Fade>
+                    )}
 
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                Full Name
-              </label>
-              <div className="mt-1 relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <User className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  id="name"
-                  name="name"
-                  type="text"
-                  required
-                  value={formData.name}
-                  onChange={handleChange}
-                  className="appearance-none relative block w-full pl-10 pr-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                  placeholder="Enter your full name"
-                />
-              </div>
-            </div>
+                    <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
+                      <TextField
+                        fullWidth
+                        label="Full Name"
+                        name="name"
+                        type="text"
+                        value={formData.name}
+                        onChange={handleChange}
+                        required
+                        sx={{ mb: 2 }}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <Person sx={{ color: 'primary.main' }} />
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
 
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email address
-              </label>
-              <div className="mt-1 relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="appearance-none relative block w-full pl-10 pr-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                  placeholder="Enter your email"
-                />
-              </div>
-            </div>
+                      <TextField
+                        fullWidth
+                        label="Email Address"
+                        name="email"
+                        type="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        required
+                        sx={{ mb: 2 }}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <Email sx={{ color: 'primary.main' }} />
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
 
-            <div>
-              <label htmlFor="role" className="block text-sm font-medium text-gray-700">
-                Role
-              </label>
-              <div className="mt-1 relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <UserCheck className="h-5 w-5 text-gray-400" />
-                </div>
-                <select
-                  id="role"
-                  name="role"
-                  value={formData.role}
-                  onChange={handleChange}
-                  className="appearance-none relative block w-full pl-10 pr-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                >
-                  <option value="VOLUNTEER">Volunteer</option>
-                  <option value="ADMIN">Admin</option>
-                </select>
-              </div>
-            </div>
+                      <TextField
+                        fullWidth
+                        label="Password"
+                        name="password"
+                        type={showPassword ? 'text' : 'password'}
+                        value={formData.password}
+                        onChange={handleChange}
+                        required
+                        sx={{ mb: 2 }}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <Lock sx={{ color: 'primary.main' }} />
+                            </InputAdornment>
+                          ),
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              <IconButton
+                                onClick={() => setShowPassword(!showPassword)}
+                                edge="end"
+                                sx={{ color: 'primary.main' }}
+                              >
+                                {showPassword ? <VisibilityOff /> : <Visibility />}
+                              </IconButton>
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
-              <div className="mt-1 relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  id="password"
-                  name="password"
-                  type={showPassword ? 'text' : 'password'}
-                  required
-                  value={formData.password}
-                  onChange={handleChange}
-                  className="appearance-none relative block w-full pl-10 pr-10 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                  placeholder="Enter your password"
-                />
-                <button
-                  type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-5 w-5 text-gray-400" />
-                  ) : (
-                    <Eye className="h-5 w-5 text-gray-400" />
-                  )}
-                </button>
-              </div>
-            </div>
+                      <TextField
+                        fullWidth
+                        label="Confirm Password"
+                        name="confirmPassword"
+                        type={showConfirmPassword ? 'text' : 'password'}
+                        value={formData.confirmPassword}
+                        onChange={handleChange}
+                        required
+                        sx={{ mb: 3 }}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <Lock sx={{ color: 'primary.main' }} />
+                            </InputAdornment>
+                          ),
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              <IconButton
+                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                edge="end"
+                                sx={{ color: 'primary.main' }}
+                              >
+                                {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                              </IconButton>
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
 
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                Confirm Password
-              </label>
-              <div className="mt-1 relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  required
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  className="appearance-none relative block w-full pl-10 pr-10 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                  placeholder="Confirm your password"
-                />
-                <button
-                  type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                >
-                  {showConfirmPassword ? (
-                    <EyeOff className="h-5 w-5 text-gray-400" />
-                  ) : (
-                    <Eye className="h-5 w-5 text-gray-400" />
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
+                      <Button
+                        type="submit"
+                        fullWidth
+                        variant="contained"
+                        disabled={isLoading}
+                        sx={{
+                          py: 1.5,
+                          mb: 2,
+                          fontSize: '1.1rem',
+                          borderRadius: '8px',
+                        }}
+                      >
+                        {isLoading ? (
+                          <CircularProgress size={24} sx={{ color: 'white' }} />
+                        ) : (
+                          'Create Account'
+                        )}
+                      </Button>
 
-          <div>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-            >
-              {isLoading ? 'Creating account...' : 'Create Account'}
-            </button>
-          </div>
+                      <Divider sx={{ my: 2 }}>
+                        <Typography variant="body2" sx={{ color: 'text.secondary', px: 2 }}>
+                          Already have an account?
+                        </Typography>
+                      </Divider>
 
-          <div className="text-center">
-            <p className="text-sm text-gray-600">
-              Already have an account?{' '}
-              <Link href="/login" className="font-medium text-blue-600 hover:text-blue-500">
-                Sign in here
-              </Link>
-            </p>
-          </div>
-        </form>
-      </div>
-    </div>
-    </div>
+                      <Box sx={{ textAlign: 'center' }}>
+                        <Link href="/login" passHref>
+                          <Button
+                            variant="outlined"
+                            fullWidth
+                            sx={{
+                              py: 1.5,
+                              fontSize: '1rem',
+                              borderRadius: '8px',
+                            }}
+                          >
+                            Sign In
+                          </Button>
+                        </Link>
+                      </Box>
+                    </Box>
+                  </Paper>
+                </Box>
+              </Fade>
+            </Grid>
+          </Grid>
+        </Container>
+        <Footer />
+      </Box>
   )
 }

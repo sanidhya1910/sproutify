@@ -4,22 +4,22 @@ import { verifyToken } from "@/lib/auth";
 
 export async function GET(request, { params }) {
   try {
-    // const token = request.headers.get('Authorization')?.replace('Bearer ', '')
+    const token = request.headers.get('Authorization')?.replace('Bearer ', '')
 
-    // if (!token) {
-    //   return NextResponse.json(
-    //     { message: 'Unauthorized' },
-    //     { status: 401 }
-    //   )
-    // }
+    if (!token) {
+      return NextResponse.json(
+        { message: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
 
-    // const decoded = verifyToken(token)
-    // if (!decoded || decoded.role !== 'ADMIN') {
-    //   return NextResponse.json(
-    //     { message: 'Unauthorized' },
-    //     { status: 401 }
-    //   )
-    // }
+    const decoded = verifyToken(token)
+    if (!decoded || decoded.role !== 'ADMIN') {
+      return NextResponse.json(
+        { message: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
 
     const event = await prisma.event.findUnique({
       where: {
@@ -74,6 +74,68 @@ export async function GET(request, { params }) {
       { message: "Internal server error" },
       { status: 500 }
     );
+  }
+}
+
+export async function PATCH(request, { params }) {
+  try {
+    const token = request.headers.get('Authorization')?.replace('Bearer ', '')
+
+    if (!token) {
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
+    }
+
+    const decoded = verifyToken(token)
+    if (!decoded || decoded.role !== 'ADMIN') {
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
+    }
+
+    const existing = await prisma.event.findUnique({ where: { id: params.id } })
+    if (!existing) {
+      return NextResponse.json({ message: 'Event not found' }, { status: 404 })
+    }
+
+    const {
+      title,
+      description,
+      location,
+      date,
+      startTime,
+      endTime,
+      expectedVolunteers,
+      safetyInstructions,
+      isFeatured,
+      imageUrl,
+    } = await request.json()
+
+    if (!title || !description || !location || !date || !startTime || !endTime) {
+      return NextResponse.json({ message: 'Missing required fields' }, { status: 400 })
+    }
+
+    if (startTime >= endTime) {
+      return NextResponse.json({ message: 'End time must be after start time' }, { status: 400 })
+    }
+
+    const event = await prisma.event.update({
+      where: { id: params.id },
+      data: {
+        title,
+        description,
+        location,
+        date: new Date(date),
+        startTime,
+        endTime,
+        expectedVolunteers: expectedVolunteers ? parseInt(expectedVolunteers, 10) : null,
+        safetyInstructions,
+        isFeatured: !!isFeatured,
+        imageUrl: imageUrl || null,
+      },
+    })
+
+    return NextResponse.json(event)
+  } catch (error) {
+    console.error('Event update error:', error)
+    return NextResponse.json({ message: 'Internal server error' }, { status: 500 })
   }
 }
 

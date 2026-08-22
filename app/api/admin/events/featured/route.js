@@ -1,21 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { verifyToken } from "@/lib/auth";
-import { generateEventQRId } from "@/lib/qr-utils";
 
+// Intentionally public — powers the homepage's featured-events section.
+// Only safe, non-PII fields are selected.
 export async function GET(request) {
   try {
-    // const token = request.headers.get("Authorization")?.replace("Bearer ", "");
-
-    // if (!token) {
-    //   return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    // }
-
-    // const decoded = verifyToken(token);
-    // if (!decoded || decoded.role !== "ADMIN") {
-    //   return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    // }
-
     const events = await prisma.event.findMany({
       where: {
         isFeatured: true,
@@ -23,7 +12,16 @@ export async function GET(request) {
       orderBy: {
         date: "desc",
       },
-      include: {
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        location: true,
+        date: true,
+        startTime: true,
+        endTime: true,
+        imageUrl: true,
+        isFeatured: true,
         _count: {
           select: {
             registrations: true,

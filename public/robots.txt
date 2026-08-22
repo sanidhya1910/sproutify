@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /volunteer
+Disallow: /api
+Disallow: /checkin
+Disallow: /unauthorized
+
+Sitemap: /sitemap.xml
