@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { getPrisma } from '@/lib/prisma'
 import { verifyToken } from '@/lib/auth'
 
 export async function DELETE(request) {
   try {
+    const prisma = await getPrisma()
     const token = request.headers.get('Authorization')?.replace('Bearer ', '')
     
     if (!token) {

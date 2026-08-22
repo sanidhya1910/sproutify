@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { getPrisma } from '@/lib/prisma'
 import { verifyPassword, generateToken } from '@/lib/auth'
 
 export async function POST(request) {
   try {
+    const prisma = await getPrisma()
     const { email, password } = await request.json()
 
     // Find user

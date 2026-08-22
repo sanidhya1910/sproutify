@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { getPrisma } from "@/lib/prisma";
 
 // Intentionally public — powers the homepage's featured-events section.
 // Only safe, non-PII fields are selected.
 export async function GET(request) {
   try {
+    const prisma = await getPrisma();
     const events = await prisma.event.findMany({
       where: {
         isFeatured: true,

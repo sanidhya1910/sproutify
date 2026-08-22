@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { getPrisma } from "@/lib/prisma";
 import { verifyToken } from "@/lib/auth";
 
 export async function GET(request, { params }) {
   try {
+    const prisma = await getPrisma()
     const token = request.headers.get('Authorization')?.replace('Bearer ', '')
 
     if (!token) {
@@ -79,6 +80,7 @@ export async function GET(request, { params }) {
 
 export async function PATCH(request, { params }) {
   try {
+    const prisma = await getPrisma()
     const token = request.headers.get('Authorization')?.replace('Bearer ', '')
 
     if (!token) {
@@ -141,6 +143,7 @@ export async function PATCH(request, { params }) {
 
 export async function DELETE(request, { params }) {
   try {
+    const prisma = await getPrisma()
     const token = request.headers.get("Authorization")?.replace("Bearer ", "");
 
     if (!token) {

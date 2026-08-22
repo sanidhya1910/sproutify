@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { getPrisma } from '@/lib/prisma'
 import { verifyToken } from '@/lib/auth'
 
 export async function GET(request) {
   try {
+    const prisma = await getPrisma()
     const token = request.headers.get('Authorization')?.replace('Bearer ', '')
     if (!token) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
