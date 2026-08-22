@@ -120,7 +120,7 @@ export default function MyEvents() {
 
   return (
     <AuthGuard requiredRole="VOLUNTEER">
-      <div className="min-h-screen bg-gradient-to-b from-gray-400 to-teal-100">
+      <div className="min-h-screen bg-white">
         <Navigation />
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8"></div>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

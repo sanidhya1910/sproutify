@@ -4,13 +4,19 @@ import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import Navigation from '@/components/ui/navigation'
 import AuthGuard from '@/components/ui/auth-guard'
-import { Calendar, MapPin, Clock, Users, ArrowLeft, CheckCircle, Mail, Award, TrendingUp, UserCheck } from 'lucide-react'
+import { Calendar, MapPin, Clock, Users, ArrowLeft, CheckCircle, Mail, Award, TrendingUp, UserCheck, ShieldCheck } from 'lucide-react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useSnackbar } from '@/app/providers'
 
 export default function VolunteerDetails() {
   const params = useParams()
+  const router = useRouter()
+  const { showSuccess, showError } = useSnackbar()
   const [volunteer, setVolunteer] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [confirmingPromote, setConfirmingPromote] = useState(false)
+  const [isPromoting, setIsPromoting] = useState(false)
 
   useEffect(() => {
     if (params.id) {
@@ -53,6 +59,34 @@ export default function VolunteerDetails() {
   const getAttendanceRate = (volunteer) => {
     if (volunteer.stats.registeredEvents === 0) return 0
     return Math.round((volunteer.stats.attendedEvents / volunteer.stats.registeredEvents) * 100)
+  }
+
+  const handlePromote = async () => {
+    setIsPromoting(true)
+    try {
+      const token = localStorage.getItem('token')
+      const response = await fetch(`/api/admin/volunteers/${params.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ role: 'ADMIN' }),
+      })
+      const data = await response.json()
+      if (!response.ok) {
+        showError(data.message || 'Failed to promote volunteer')
+        return
+      }
+      showSuccess(data.message || 'Promoted to admin')
+      router.push('/admin/volunteers')
+    } catch (error) {
+      console.error('Error promoting volunteer:', error)
+      showError('Something went wrong. Please try again.')
+    } finally {
+      setIsPromoting(false)
+      setConfirmingPromote(false)
+    }
   }
 
   const getEventStatus = (eventDate) => {
@@ -136,6 +170,34 @@ export default function VolunteerDetails() {
                   </div>
                 </div>
               </div>
+
+              {confirmingPromote ? (
+                <div className="flex items-center gap-2 mt-4 sm:mt-0">
+                  <span className="text-sm text-gray-700">Make {volunteer.name} an admin?</span>
+                  <button
+                    onClick={handlePromote}
+                    disabled={isPromoting}
+                    className="inline-flex items-center px-3 py-1.5 text-sm bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:opacity-50 transition-colors"
+                  >
+                    {isPromoting ? 'Promoting…' : 'Confirm'}
+                  </button>
+                  <button
+                    onClick={() => setConfirmingPromote(false)}
+                    disabled={isPromoting}
+                    className="inline-flex items-center px-3 py-1.5 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setConfirmingPromote(true)}
+                  className="inline-flex items-center px-3 py-1.5 text-sm bg-purple-50 text-purple-700 rounded-md hover:bg-purple-100 transition-colors mt-4 sm:mt-0"
+                >
+                  <ShieldCheck className="w-4 h-4 mr-1.5" />
+                  Promote to Admin
+                </button>
+              )}
             </div>
           </div>
 
