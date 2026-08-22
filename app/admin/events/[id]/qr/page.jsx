@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
-import Navigation from '@/components/ui/navigation'
-import AuthGuard from '@/components/ui/auth-guard'
+import Navigation from '@/components/chrome/navigation'
+import AuthGuard from '@/components/auth/auth-guard'
 import { ArrowLeft, Download, Printer } from 'lucide-react'
 import Link from 'next/link'
 import { generateQRCode } from '@/lib/qr-utils'

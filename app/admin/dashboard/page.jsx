@@ -50,8 +50,8 @@ import {
   ManageAccounts,
   CalendarMonth,
 } from '@mui/icons-material'
-import Navigation from '@/components/ui/navigation'
-import AuthGuard from '@/components/ui/auth-guard'
+import Navigation from '@/components/chrome/navigation'
+import AuthGuard from '@/components/auth/auth-guard'
 import Link from 'next/link'
 
 export default function AdminDashboard() {

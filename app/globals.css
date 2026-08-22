@@ -2,33 +2,110 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Body background/typography are governed by MUI's theme (lib/theme.js,
-   MuiCssBaseline override) via the single root ThemeProvider in
-   app/providers.tsx — kept minimal here to avoid the two systems fighting. */
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
+/* ---------------------------------------------------------------------------
+   Sproutify design tokens — "modern civic product"
+   Warm off-white paper, green-undertoned ink, deep civic green as the single
+   brand colour, one cobalt signal accent, and semantic colours that finally
+   mean what they say (red is red, amber is amber).
+
+   Everything is authored as raw HSL triplets so Tailwind can apply opacity
+   modifiers (bg-primary/10). Consumed via tailwind.config.ts.
+   No dark mode: there is no theme toggle and no provider for one. The
+   variable structure leaves it as a purely additive change later.
+--------------------------------------------------------------------------- */
+
+@layer base {
+  :root {
+    /* Neutral base */
+    --background:        45 33% 98%;   /* #FBFAF7 warm paper, not pure white */
+    --surface:            0  0% 100%;  /* cards                              */
+    --surface-sunken:    43 26% 95%;   /* wells, table stripes               */
+    --foreground:        40 10% 13%;   /* ink                                */
+    --muted:             43 26% 95%;
+    --muted-foreground:  40  7% 45%;   /* the ONE muted-text token           */
+    --subtle-foreground: 40  8% 63%;   /* captions, placeholders             */
+    --border:            42 16% 88%;   /* hairline                           */
+    --input:             42 16% 88%;
+    --ring:             144 61% 20%;
+
+    /* Primary — deep civic green */
+    --primary-50:  138 30% 95%;
+    --primary-100: 141 33% 90%;
+    --primary-200: 141 35% 79%;
+    --primary-300: 146 34% 65%;
+    --primary-400: 149 34% 48%;
+    --primary-500: 152 47% 35%;
+    --primary-600: 157 50% 27%;
+    --primary-700: 144 61% 20%;        /* #14532D — brand                    */
+    --primary-800: 144 61% 15%;
+    --primary-900: 144 62% 10%;
+    --primary:            144 61% 20%;
+    --primary-foreground:  45 33% 98%;
+
+    /* One signal accent — civic cobalt. Max twice per screen. */
+    --accent:            224 76% 48%;
+    --accent-foreground:   0  0% 100%;
+    --accent-subtle:     224 76% 96%;
+
+    /* Semantics */
+    --destructive:             0 72% 51%;   /* a REAL red (was blue)   */
+    --destructive-foreground:  0  0% 100%;
+    --destructive-subtle:      0 86% 97%;
+    --warning:                32 95% 44%;   /* a REAL amber (was green)*/
+    --warning-foreground:      0  0% 100%;
+    --warning-subtle:         48 96% 94%;
+    --success:               142 76% 36%;
+    --success-foreground:      0  0% 100%;
+    --success-subtle:        138 76% 95%;
+
+    --radius: 0.625rem;                     /* 10px */
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Numbers that are data should never wobble as they change */
+  .tnum,
+  table td,
+  .stat-value {
+    font-variant-numeric: tabular-nums;
+  }
 }
 
 html {
   scroll-behavior: smooth;
 }
 
-/* Custom scrollbar styles */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 10px;
+  height: 10px;
 }
-
 ::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.1);
+  background: hsl(var(--surface-sunken));
 }
-
 ::-webkit-scrollbar-thumb {
-  background: rgba(0, 191, 165, 0.6);
-  border-radius: 4px;
+  background: hsl(var(--border));
+  border-radius: 9999px;
+  border: 2px solid hsl(var(--surface-sunken));
 }
-
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 191, 165, 0.8);
+  background: hsl(var(--subtle-foreground));
 }
