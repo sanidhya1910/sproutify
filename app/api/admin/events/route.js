@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { getPrisma } from "@/lib/prisma";
 import { verifyToken } from "@/lib/auth";
 import { generateEventQRId } from "@/lib/qr-utils";
 
 export async function GET(request) {
   try {
+    const prisma = await getPrisma();
     const token = request.headers.get("Authorization")?.replace("Bearer ", "");
 
     if (!token) {
@@ -42,6 +43,7 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
+    const prisma = await getPrisma();
     const token = request.headers.get("Authorization")?.replace("Bearer ", "");
 
     if (!token) {
