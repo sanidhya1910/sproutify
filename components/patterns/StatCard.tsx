@@ -19,7 +19,7 @@ interface StatCardProps {
 }
 
 export function StatCard({ label, value, icon: Icon, delta, className }: StatCardProps) {
-  const display = typeof value === 'number' ? formatNumber(value) : (value ?? '—')
+  const display = typeof value === 'number' ? formatNumber(value) : (value ?? '-')
   const isUp = delta ? delta.value >= 0 : false
 
   return (

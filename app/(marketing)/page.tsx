@@ -5,76 +5,85 @@ import { Section } from '@/components/patterns/Section'
 import { Reveal } from '@/components/patterns/Reveal'
 import { AssetImage } from '@/components/patterns/AssetImage'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
 
 /**
  * Rebuilt homepage.
  *
  * The previous hero was two 50vw background panels hard-seamed down the
- * middle — a forest canopy butted against an orange vintage van — with the
+ * middle (a forest canopy butted against an orange vintage van) with the
  * headline rendered through a gradient text-clip that made it near-black on
  * a dark photo. The four narrative sections hotlinked Pexels stock, one of
  * which was a salon photo of hair curlers illustrating "Passion Without a
  * Plan is Not Enough".
  *
+ * Layout rhythm is deliberate. The page previously ran four consecutive
+ * image-left/image-right zigzag blocks, then two back-to-back four-up card
+ * grids, which read as one templated pattern repeated eight times. It now
+ * moves through four distinct layout families: split hero, two zigzag
+ * blocks, a two-up media grid, a hairline-divided figure band, and a
+ * connected process rail.
+ *
  * The impact figures below were previously presented as achieved results
  * ("50,000 lbs debris removed", "120,000+ trees planted"). They were
- * hardcoded and the database has no such history, so they are now framed
+ * hardcoded and the database has no such history, so they are framed
  * explicitly as targets.
  */
 
-const NARRATIVE = [
+// First two run as full-width zigzag blocks; the second pair collapses into
+// a two-up media grid so the alternation never runs more than twice.
+const NARRATIVE_LEAD = [
   {
+    key: 'problem',
     eyebrow: 'The problem',
     title: 'Our coasts and forests are under pressure.',
-    body: 'Plastic waste accumulates faster than it can be cleared, and habitat loss compounds every year. These are large, distributed problems that need coordinated, repeated effort — not one-off gestures.',
+    body: 'Plastic waste accumulates faster than it can be cleared, and habitat loss compounds every year. These are large, distributed problems that need coordinated, repeated effort rather than one-off gestures.',
     slot: 'home.narrative.1',
   },
   {
-    eyebrow: 'The challenge',
+    key: 'challenge',
+    eyebrow: null,
     title: 'Willingness is not the bottleneck.',
     body: 'Plenty of people want to help. What is missing is the logistics: knowing where to go, what is needed, and whether the effort actually adds up to anything measurable.',
     slot: 'home.narrative.2',
   },
+] as const
+
+const NARRATIVE_PAIR = [
   {
-    eyebrow: 'The opportunity',
+    key: 'opportunity',
     title: 'Coordinated effort compounds.',
     body: 'A structured platform turns scattered goodwill into scheduled, well-briefed work with the right equipment and enough hands to finish what it starts.',
     slot: 'home.narrative.3',
   },
   {
-    eyebrow: 'Our approach',
+    key: 'approach',
     title: 'Organised action, recorded honestly.',
-    body: 'We handle the coordination — partners, permits, safety briefings, supplies — so volunteers can turn up and work. Attendance is verified on site, so the numbers we report are the ones that actually happened.',
+    body: 'We handle partners, permits, safety briefings and supplies, so volunteers can turn up and work. Attendance is verified on site, so the numbers we report are the ones that actually happened.',
     slot: 'home.narrative.4',
   },
 ] as const
 
 const GOALS = [
-  { icon: Waves, value: '50,000 lbs', label: 'Debris removed from coasts' },
-  { icon: Sprout, value: '120,000', label: 'Trees planted' },
-  { icon: Users, value: '15,000', label: 'Active volunteers' },
-  { icon: Handshake, value: '200', label: 'Community partners' },
+  { icon: Waves, value: '50,000', unit: 'lbs', label: 'Debris removed from coasts' },
+  { icon: Sprout, value: '120,000', unit: null, label: 'Trees planted' },
+  { icon: Users, value: '15,000', unit: null, label: 'Active volunteers' },
+  { icon: Handshake, value: '200', unit: null, label: 'Community partners' },
 ] as const
 
 const PROCESS = [
   {
-    step: '01',
     title: 'Identify and plan',
     body: 'We work with local partners to find sites that genuinely need attention, then scope what it takes to do the job properly.',
   },
   {
-    step: '02',
     title: 'Mobilise volunteers',
     body: 'Events are published here with the detail people actually need: what to bring, what to expect, and how long it runs.',
   },
   {
-    step: '03',
     title: 'Execute and restore',
     body: 'Every event runs with a safety briefing, supplied equipment and an on-site coordinator.',
   },
   {
-    step: '04',
     title: 'Measure and repeat',
     body: 'Attendance is confirmed on the day, so impact is recorded from what happened rather than estimated.',
   },
@@ -83,7 +92,9 @@ const PROCESS = [
 export default function HomePage() {
   return (
     <>
-      {/* Hero */}
+      {/* Hero. The scrim is a directional gradient, not a flat wash: a uniform
+          bg-primary-900/70 over the whole frame flattened a golden-hour
+          photograph into a single olive tone. */}
       <section className="relative isolate overflow-hidden bg-primary-900">
         <div className="absolute inset-0 -z-10">
           <AssetImage
@@ -92,19 +103,21 @@ export default function HomePage() {
             sizes="100vw"
             alt=""
           />
-          <div className="absolute inset-0 bg-primary-900/70" />
+          {/* Base darkening keeps the whole frame readable; the directional
+              gradient on top concentrates it behind the copy so the right
+              half of the photograph still reads as a photograph. */}
+          <div className="absolute inset-0 bg-primary-900/45" />
+          <div className="absolute inset-0 bg-gradient-to-r from-primary-900/85 via-primary-900/60 to-transparent" />
         </div>
 
-        <Container className="py-24 md:py-36">
-          <div className="max-w-2xl">
-            <p className="text-overline uppercase text-primary-200">Begin again</p>
-            <h1 className="mt-4 text-display-xl text-background md:text-display-2xl">
+        <Container className="flex min-h-[max(560px,72dvh)] flex-col justify-center py-20 md:py-24">
+          <div className="max-w-3xl">
+            <h1 className="text-display-lg text-background md:text-display-xl">
               Bridging the gap between community and conservation.
             </h1>
-            <p className="mt-6 max-w-xl text-body-lg text-primary-100">
-              Sproutify connects volunteers with organised environmental work — beach
-              cleanups, tree plantations and habitat restoration — and records what
-              actually gets done.
+            <p className="mt-5 max-w-xl text-body-lg text-primary-100">
+              Organised environmental work near you: cleanups, plantations and habitat
+              restoration, with every hour on site verified.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button asChild size="lg">
@@ -117,7 +130,7 @@ export default function HomePage() {
                 asChild
                 size="lg"
                 variant="secondary"
-                className="border-transparent bg-background/10 text-background hover:bg-background/20"
+                className="border-background/25 bg-background/10 text-background backdrop-blur-sm hover:bg-background/20"
               >
                 <Link href="/about">How it works</Link>
               </Button>
@@ -126,11 +139,11 @@ export default function HomePage() {
         </Container>
       </section>
 
-      {/* Narrative */}
+      {/* Narrative: two zigzag blocks, then the pattern breaks. */}
       <Section>
         <div className="space-y-20 md:space-y-28">
-          {NARRATIVE.map((item, i) => (
-            <Reveal key={item.eyebrow}>
+          {NARRATIVE_LEAD.map((item, i) => (
+            <Reveal key={item.key}>
               <div
                 className={`grid items-center gap-8 md:grid-cols-2 md:gap-14 ${
                   i % 2 === 1 ? 'md:[&>*:first-child]:order-2' : ''
@@ -144,7 +157,9 @@ export default function HomePage() {
                   />
                 </div>
                 <div>
-                  <p className="text-overline uppercase text-primary-600">{item.eyebrow}</p>
+                  {item.eyebrow && (
+                    <p className="text-overline uppercase text-primary-600">{item.eyebrow}</p>
+                  )}
                   <h2 className="mt-3 text-display-lg text-foreground">{item.title}</h2>
                   <p className="mt-4 text-body-lg text-muted-foreground">{item.body}</p>
                 </div>
@@ -152,51 +167,89 @@ export default function HomePage() {
             </Reveal>
           ))}
         </div>
+
+        {/* Two-up media grid. Same content family as above, different
+            composition, so the zigzag never runs a third time. */}
+        <div className="mt-20 grid gap-8 md:mt-28 md:grid-cols-2 md:gap-10">
+          {NARRATIVE_PAIR.map((item) => (
+            <Reveal key={item.key}>
+              <article className="flex h-full flex-col">
+                <div className="overflow-hidden rounded-lg border border-border">
+                  <AssetImage
+                    slot={item.slot}
+                    className="aspect-[1.6] object-cover"
+                    sizes="(min-width: 768px) 560px, 100vw"
+                  />
+                </div>
+                <h2 className="mt-6 text-h2 text-foreground">{item.title}</h2>
+                <p className="mt-3 text-body text-muted-foreground">{item.body}</p>
+              </article>
+            </Reveal>
+          ))}
+        </div>
       </Section>
 
-      {/* Goals — explicitly targets, not claimed results */}
+      {/* Goals. Previously four identical bordered cards, which read as the
+          same grid as the process section directly below it. Now a figure
+          band separated by hairlines: no card chrome, numbers carry it. */}
       <Section tone="sunken">
-        <div className="mx-auto max-w-2xl text-center">
-          <p className="text-overline uppercase text-primary-600">Where we are heading</p>
-          <h2 className="mt-3 text-display-lg text-foreground">Our 2030 targets</h2>
-          <p className="mt-4 text-body-lg text-muted-foreground">
-            These are the goals we are working towards, not results already achieved.
-            Verified impact is recorded per event and will be published here as it adds up.
-          </p>
-        </div>
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,22rem)_1fr] lg:gap-16">
+          <div>
+            <p className="text-overline uppercase text-primary-600">Where we are heading</p>
+            <h2 className="mt-3 text-display-lg text-foreground">Our 2030 targets</h2>
+            <p className="mt-4 text-body text-muted-foreground">
+              These are the goals we are working towards, not results already achieved.
+              Verified impact is recorded per event and published here as it adds up.
+            </p>
+          </div>
 
-        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {GOALS.map((goal) => (
-            <Card key={goal.label} className="p-6 text-center">
-              <div className="mx-auto flex size-10 items-center justify-center rounded-md bg-primary-50 text-primary-700">
-                <goal.icon size={20} strokeWidth={1.75} />
+          <dl className="grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-2">
+            {GOALS.map((goal) => (
+              <div key={goal.label} className="bg-surface p-6">
+                <goal.icon
+                  className="text-primary-400"
+                  size={20}
+                  strokeWidth={1.75}
+                  aria-hidden
+                />
+                <dd className="stat-value mt-4 flex items-baseline gap-1.5 text-display-lg text-primary-800">
+                  {goal.value}
+                  {goal.unit && (
+                    <span className="text-h4 font-medium text-primary-600">{goal.unit}</span>
+                  )}
+                </dd>
+                <dt className="mt-1 text-body-sm text-muted-foreground">{goal.label}</dt>
               </div>
-              <p className="stat-value mt-4 text-display-lg text-primary-700">{goal.value}</p>
-              <p className="mt-1 text-body-sm text-muted-foreground">{goal.label}</p>
-              <p className="mt-3 text-caption uppercase tracking-wide text-subtle-foreground">
-                Target
-              </p>
-            </Card>
-          ))}
+            ))}
+          </dl>
         </div>
       </Section>
 
-      {/* Process */}
+      {/* Process. The "01 02 03 04" display numerals were the loudest thing on
+          the page and duplicated the goals grid one section earlier. Now a
+          connected rail: the marker is structural, the step title leads. */}
       <Section>
-        <div className="mx-auto max-w-2xl text-center">
-          <p className="text-overline uppercase text-primary-600">How it works</p>
-          <h2 className="mt-3 text-display-lg text-foreground">From site to measured outcome</h2>
+        <div className="max-w-2xl">
+          <h2 className="text-display-lg text-foreground">From site to measured outcome</h2>
         </div>
 
-        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {PROCESS.map((item) => (
-            <Card key={item.step} className="p-6">
-              <span className="tnum text-h2 text-primary-200">{item.step}</span>
-              <h3 className="mt-3 text-h4 text-foreground">{item.title}</h3>
+        <ol className="mt-12 grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+          {PROCESS.map((item, i) => (
+            <li key={item.title} className="relative">
+              {/* The rail bridges the grid gap (lg:gap-6 = 1.5rem), so it has
+                  to run wider than the cell it starts in. */}
+              {i < PROCESS.length - 1 && (
+                <span
+                  className="absolute left-2.5 top-[5px] hidden h-px w-[calc(100%+1.5rem)] bg-border lg:block"
+                  aria-hidden
+                />
+              )}
+              <span className="relative z-10 flex size-2.5 rounded-full bg-primary ring-4 ring-background" />
+              <h3 className="mt-5 text-h4 text-foreground">{item.title}</h3>
               <p className="mt-2 text-body-sm text-muted-foreground">{item.body}</p>
-            </Card>
+            </li>
           ))}
-        </div>
+        </ol>
       </Section>
 
       {/* CTA */}
@@ -208,14 +261,18 @@ export default function HomePage() {
             your organisation.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Button asChild size="lg">
+            <Button
+              asChild
+              size="lg"
+              className="bg-background text-primary-900 hover:bg-primary-50"
+            >
               <Link href="/register">Become a volunteer</Link>
             </Button>
             <Button
               asChild
               size="lg"
               variant="secondary"
-              className="border-transparent bg-background/10 text-background hover:bg-background/20"
+              className="border-background/25 bg-transparent text-background hover:bg-background/10"
             >
               <Link href="/contact">Partner with us</Link>
             </Button>

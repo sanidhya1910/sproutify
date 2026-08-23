@@ -132,7 +132,7 @@ function MyEventsBody() {
                   ? 'No past events yet'
                   : 'You have not registered for anything yet'
             }
-            description="Find something nearby and sign up — it takes a moment."
+            description="Find something nearby and sign up. It only takes a moment."
             action={
               <Button asChild>
                 <Link href="/volunteer/events">Browse events</Link>

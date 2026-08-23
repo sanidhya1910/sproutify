@@ -83,7 +83,7 @@ function RedeemBody() {
           <div className="flex items-center gap-2 rounded-md border border-border bg-surface px-3 py-2">
             <Leaf size={16} strokeWidth={1.75} className="text-primary-700" />
             <span className="tnum text-body font-medium text-foreground">
-              {balanceQuery.isLoading ? '—' : formatNumber(balance)}
+              {balanceQuery.isLoading ? '-' : formatNumber(balance)}
             </span>
             <span className="text-body-sm text-muted-foreground">available</span>
           </div>
@@ -111,7 +111,7 @@ function RedeemBody() {
           <EmptyState
             icon={Gift}
             title="No rewards available right now"
-            description="New items get added as partners come on board — check back soon."
+            description="New items get added as partners come on board. Check back soon."
           />
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -168,7 +168,7 @@ function RedeemBody() {
                             </span>
                           </TooltipTrigger>
                           <TooltipContent>
-                            {short} more {short === 1 ? 'token' : 'tokens'} needed — attend an
+                            {short} more {short === 1 ? 'token' : 'tokens'} needed. Attend an
                             event to earn more.
                           </TooltipContent>
                         </Tooltip>

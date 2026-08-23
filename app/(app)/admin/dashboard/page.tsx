@@ -200,13 +200,18 @@ function DashboardBody() {
                 </div>
               ) : (
                 <div className="overflow-x-auto">
-                  <Table>
+                  {/* table-fixed: the auto-layout table demanded more width
+                      than its 2/3 grid cell, which pushed the attendance
+                      meter past the card edge. Fixed layout makes the
+                      columns honour the declared widths and lets the event
+                      title truncate instead. */}
+                  <Table className="table-fixed">
                     <TableHeader>
                       <TableRow>
                         <TableHead>Event</TableHead>
-                        <TableHead>Date</TableHead>
-                        <TableHead className="text-right">Registered</TableHead>
-                        <TableHead className="w-40">Attendance</TableHead>
+                        <TableHead className="w-28">Date</TableHead>
+                        <TableHead className="w-24 text-right">Registered</TableHead>
+                        <TableHead className="w-28">Attendance</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -246,7 +251,7 @@ function DashboardBody() {
                               <ProgressMeter
                                 value={event._count.attendances}
                                 max={event._count.registrations}
-                                emptyLabel="—"
+                                emptyLabel="-"
                               />
                             </TableCell>
                           </TableRow>

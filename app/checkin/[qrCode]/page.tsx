@@ -177,7 +177,7 @@ function CheckInBody({ qrCode }: { qrCode: string }) {
                 </div>
               )}
               <p className="mt-3 text-body-sm text-muted-foreground">
-                Thanks for turning up — enjoy the day.
+                Thanks for turning up. Enjoy the day.
               </p>
               <Button asChild className="mt-6 w-full" size="lg">
                 <Link href="/volunteer/dashboard">Go to dashboard</Link>

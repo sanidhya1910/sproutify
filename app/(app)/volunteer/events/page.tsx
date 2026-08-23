@@ -181,7 +181,7 @@ function EventsBody() {
             description={
               filtered
                 ? 'Try clearing the search or choosing a different category.'
-                : 'Nothing scheduled right now — check back soon.'
+                : 'Nothing scheduled right now. Check back soon.'
             }
             action={
               filtered ? (

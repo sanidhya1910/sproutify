@@ -41,7 +41,7 @@ export default function Footer() {
               <span className="text-h4 tracking-tight text-background">Sproutify</span>
             </div>
             <p className="mt-3 max-w-sm text-body-sm text-primary-200">
-              Connecting volunteers with organised environmental action — beach cleanups,
+              Connecting volunteers with organised environmental action: beach cleanups,
               tree plantations and community-led restoration.
             </p>
           </div>

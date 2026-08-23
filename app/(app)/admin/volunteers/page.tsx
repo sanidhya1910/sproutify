@@ -204,7 +204,7 @@ function VolunteersBody() {
                           <ProgressMeter
                             value={v.stats.attendedEvents}
                             max={v.stats.registeredEvents}
-                            emptyLabel="—"
+                            emptyLabel="-"
                           />
                         </TableCell>
                         <TableCell className="whitespace-nowrap text-muted-foreground">
