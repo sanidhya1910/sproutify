@@ -3,12 +3,13 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff, Info } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { apiPost } from '@/lib/api'
+import { DEMO_MODE, DEMO_VOLUNTEER, saveLocalAccount } from '@/lib/demo'
 
 /**
  * Note: no role selector. Self-service admin signup was removed earlier —
@@ -44,6 +45,29 @@ export default function RegisterPage() {
 
     setLoading(true)
     try {
+      if (DEMO_MODE) {
+        // Demo build: the profile is kept in browser storage and no database
+        // row is created, so visitors can complete signup without adding to
+        // the seeded dataset. The session itself is borrowed from the demo
+        // volunteer, because a browser-only account has no row to issue a
+        // token against and every authenticated endpoint would reject it.
+        saveLocalAccount({
+          name: form.name,
+          email: form.email,
+          createdAt: new Date().toISOString(),
+          backedBy: DEMO_VOLUNTEER.email,
+        })
+
+        const data = await apiPost<{ token: string }>(
+          '/api/auth/login',
+          { email: DEMO_VOLUNTEER.email, password: DEMO_VOLUNTEER.password },
+          false
+        )
+        localStorage.setItem('token', data.token)
+        router.push('/volunteer/dashboard')
+        return
+      }
+
       await apiPost(
         '/api/auth/register',
         { name: form.name, email: form.email, password: form.password },
@@ -62,6 +86,17 @@ export default function RegisterPage() {
       <p className="mt-1.5 text-body text-muted-foreground">
         Register for events, track your impact and earn EcoTokens.
       </p>
+
+      {DEMO_MODE && (
+        <div className="mt-5 flex items-start gap-2.5 rounded-md border border-border bg-surface-sunken p-3">
+          <Info size={15} strokeWidth={1.75} className="mt-0.5 shrink-0 text-primary-600" />
+          <p className="text-body-sm text-muted-foreground">
+            Demo build: your details stay in this browser and no account is created on
+            the server. You will be signed in with sample volunteer data so you can look
+            around.
+          </p>
+        </div>
+      )}
 
       {error && (
         <div

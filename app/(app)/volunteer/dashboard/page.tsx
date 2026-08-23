@@ -21,6 +21,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { apiGet } from '@/lib/api'
+import { useDisplayName } from '@/lib/use-display-name'
 import { resolveEventType } from '@/lib/event-types'
 import { formatEventDateShort, formatEventTime, formatRelative } from '@/lib/format'
 
@@ -62,6 +63,9 @@ function DashboardBody() {
     queryFn: () => apiGet<DashboardData>('/api/volunteer/dashboard'),
   })
 
+  // Must sit above the early returns below: hooks cannot be conditional.
+  const displayName = useDisplayName(data?.user?.name)
+
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -97,7 +101,7 @@ function DashboardBody() {
     <>
       <PageHeader
         eyebrow="Dashboard"
-        title={`Welcome back, ${data.user.name}`}
+        title={`Welcome back, ${displayName ?? data.user.name}`}
         description="Your events, impact and EcoTokens at a glance."
         actions={
           <Button asChild>
@@ -258,18 +262,20 @@ function DashboardBody() {
                   {data.recentAttendances.map((a) => {
                     const type = resolveEventType(a.event)
                     return (
-                      <li key={a.event.id} className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <p className="truncate text-body-sm font-medium text-foreground">
-                            {a.event.title}
-                          </p>
-                          <p className="text-caption text-muted-foreground">
+                      // Title on its own line: this card sits in the narrow
+                      // third of the grid, and a shrink-0 pill beside the
+                      // title crushed it to a couple of characters while the
+                      // timestamp wrapped over four lines.
+                      <li key={a.event.id} className="min-w-0">
+                        <p className="truncate text-body-sm font-medium text-foreground">
+                          {a.event.title}
+                        </p>
+                        <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1">
+                          <StatusPill tone={type.tone}>{type.label}</StatusPill>
+                          <span className="text-caption text-muted-foreground">
                             Attended {formatRelative(a.checkedInAt)}
-                          </p>
+                          </span>
                         </div>
-                        <StatusPill tone={type.tone} className="shrink-0">
-                          {type.label}
-                        </StatusPill>
                       </li>
                     )
                   })}

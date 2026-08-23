@@ -9,6 +9,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { apiPost } from '@/lib/api'
+import { DemoCredentials } from '@/components/auth/DemoCredentials'
+import { DEMO_MODE, type DemoAccount } from '@/lib/demo'
 
 interface LoginResponse {
   token: string
@@ -30,13 +32,16 @@ function LoginForm() {
   const notice = searchParams.get('message')
   const redirect = searchParams.get('redirect')
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const signIn = async (nextEmail: string, nextPassword: string) => {
     setError('')
     setLoading(true)
 
     try {
-      const data = await apiPost<LoginResponse>('/api/auth/login', { email, password }, false)
+      const data = await apiPost<LoginResponse>(
+        '/api/auth/login',
+        { email: nextEmail, password: nextPassword },
+        false
+      )
       localStorage.setItem('token', data.token)
 
       if (redirect && redirect.startsWith('/')) {
@@ -50,6 +55,19 @@ function LoginForm() {
       setError(err instanceof Error ? err.message : 'Login failed')
       setLoading(false)
     }
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    void signIn(email, password)
+  }
+
+  // One click fills the form and signs straight in: a reviewer landing on the
+  // login wall should not have to type anything to see the product.
+  const pickDemoAccount = (account: DemoAccount) => {
+    setEmail(account.email)
+    setPassword(account.password)
+    void signIn(account.email, account.password)
   }
 
   return (
@@ -120,6 +138,8 @@ function LoginForm() {
           {loading ? 'Signing in…' : 'Sign in'}
         </Button>
       </form>
+
+      {DEMO_MODE && <DemoCredentials onPick={pickDemoAccount} />}
 
       <p className="mt-6 text-center text-body-sm text-muted-foreground">
         New to Sproutify?{' '}
