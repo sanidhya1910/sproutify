@@ -114,14 +114,14 @@ const ASSET_MAP = {
     purpose: 'Homepage "Our solution" section.',
     src: '/scenes/narrative-4.webp',
     width: 720,
-    height: 576,
-    aspect: '1.25:1',
+    height: 450,
+    aspect: '1.6:1',
     fit: 'cover',
-    alt: 'Volunteers sorting collected waste into labelled containers',
+    alt: 'Volunteers sorting collected waste into containers',
     placeholder: 'skeleton',
     status: 'ready',
     prompt:
-      'Documentary photograph of volunteers sorting collected waste into labelled bins, organised and purposeful, natural daylight, muted warm palette.',
+      'Documentary photograph of volunteers sorting collected waste into PLAIN UNMARKED crates, organised and purposeful, natural daylight, muted warm palette. Negative prompt MUST include text/letters/signs/labels: the first generation rendered pseudo-text on the bins, and the shipped file is a reframed crop of it rather than a clean generation.',
   },
   'about.story': {
     id: 'about.story',

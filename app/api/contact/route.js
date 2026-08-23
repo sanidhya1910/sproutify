@@ -55,7 +55,7 @@ export async function POST(request) {
 
     if (recent >= THROTTLE_MAX) {
       return NextResponse.json(
-        { message: "You've sent several messages just now — please give us a moment to reply." },
+        { message: "You've sent several messages just now. Please give us a moment to reply." },
         { status: 429 }
       )
     }
@@ -65,7 +65,7 @@ export async function POST(request) {
     })
 
     return NextResponse.json(
-      { message: "Thanks — your message is with us and we'll be in touch." },
+      { message: "Thanks, your message is with us and we'll be in touch." },
       { status: 201 }
     )
   } catch (error) {

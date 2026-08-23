@@ -12,7 +12,7 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'sw
 const siteUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
 const title = 'Sproutify';
 const description =
-  'Sproutify connects volunteers with organized environmental initiatives — beach cleanups, tree plantations, and community-led restoration projects.';
+  'Sproutify connects volunteers with organized environmental initiatives: beach cleanups, tree plantations, and community-led restoration projects.';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

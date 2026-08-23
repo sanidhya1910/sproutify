@@ -49,7 +49,7 @@ export default function RegisterPage() {
         { name: form.name, email: form.email, password: form.password },
         false
       )
-      router.push('/login?message=Account created — please sign in.')
+      router.push('/login?message=Account created. Please sign in.')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed')
       setLoading(false)

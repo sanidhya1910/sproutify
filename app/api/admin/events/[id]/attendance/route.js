@@ -30,7 +30,7 @@ export async function POST(request, { params }) {
 
     return NextResponse.json(
       {
-        message: `Attendance marked successfully — ${tokensAwarded} EcoTokens awarded`,
+        message: `Attendance marked. ${tokensAwarded} EcoTokens awarded.`,
         attendance,
         ecoTokens,
       },
@@ -60,7 +60,7 @@ export async function DELETE(request, { params }) {
     })
 
     return NextResponse.json({
-      message: `Attendance removed successfully — ${tokensRevoked} EcoTokens revoked`,
+      message: `Attendance removed. ${tokensRevoked} EcoTokens revoked.`,
       ecoTokens,
     })
   } catch (error) {

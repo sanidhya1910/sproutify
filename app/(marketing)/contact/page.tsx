@@ -92,7 +92,7 @@ export default function ContactPage() {
             </div>
             <h2 className="mt-4 text-h4 text-foreground">How we handle messages</h2>
             <p className="mt-2 text-body-sm text-muted-foreground">
-              Messages go to the events team. We aim to reply within a few working days —
+              Messages go to the events team. We aim to reply within a few working days,
               sooner if it is about an event happening this week.
             </p>
           </Card>
@@ -118,7 +118,7 @@ export default function ContactPage() {
                 </div>
                 <h2 className="mt-4 text-h3 text-foreground">Message sent</h2>
                 <p className="mt-2 text-body text-muted-foreground">
-                  Thanks — it is with the team and we will be in touch.
+                  Thanks. It is with the team and we will be in touch.
                 </p>
                 <Button
                   variant="secondary"

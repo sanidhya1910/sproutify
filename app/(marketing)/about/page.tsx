@@ -49,7 +49,7 @@ const PRINCIPLES = [
   {
     icon: BadgeCheck,
     title: 'Verified, not estimated',
-    body: 'Attendance is confirmed on site via QR check-in, so what we report is what happened — not a projection.',
+    body: 'Attendance is confirmed on site via QR check-in, so what we report is what happened, not a projection.',
   },
 ] as const
 

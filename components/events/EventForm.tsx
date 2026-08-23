@@ -314,7 +314,7 @@ export function EventForm({
               {imageBroken ? (
                 <div className="flex items-center gap-2 bg-surface-sunken p-4 text-body-sm text-muted-foreground">
                   <ImageOff size={16} strokeWidth={1.75} />
-                  That URL could not be loaded — the category artwork will be used instead.
+                  That URL could not be loaded. The category artwork will be used instead.
                 </div>
               ) : (
                 // eslint-disable-next-line @next/next/no-img-element

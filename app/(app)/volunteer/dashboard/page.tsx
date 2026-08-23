@@ -81,7 +81,7 @@ function DashboardBody() {
       <EmptyState
         icon={CalendarX2}
         title="Couldn't load your dashboard"
-        description="Something went wrong reaching the server. Your data is safe — this is just a loading problem."
+        description="Something went wrong reaching the server. Your data is safe; this is just a loading problem."
         action={
           <Button variant="secondary" onClick={() => refetch()}>
             Try again

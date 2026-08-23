@@ -68,7 +68,7 @@ function EventBody({ id }: { id: string }) {
   const register = useMutation({
     mutationFn: () => apiPost('/api/volunteer/register', { eventId: id }),
     onSuccess: () => {
-      toast.success('You are registered — see you there')
+      toast.success('You are registered. See you there.')
       invalidate()
     },
     onError: (e: Error) => toast.error(e.message || 'Registration failed'),
