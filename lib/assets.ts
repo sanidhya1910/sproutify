@@ -58,7 +58,7 @@ const ASSET_MAP = {
     alt: 'Volunteers working together on a coastal cleanup at golden hour',
     placeholder: 'gradient',
     priority: true,
-    status: 'pending',
+    status: 'ready',
     prompt:
       'Wide golden-hour documentary photograph of a diverse volunteer group at a coastal cleanup, mid-action, natural candid framing, negative space in the upper left for a headline, muted warm palette that reads well under a dark scrim. Not stock-photo posed.',
   },
@@ -73,7 +73,7 @@ const ASSET_MAP = {
     fit: 'cover',
     alt: 'Plastic debris washed up along a shoreline',
     placeholder: 'skeleton',
-    status: 'pending',
+    status: 'ready',
     prompt:
       'Documentary photograph of plastic debris collected along a shoreline, overcast natural light, sombre but not grim, muted palette.',
   },
@@ -89,7 +89,7 @@ const ASSET_MAP = {
     fit: 'cover',
     alt: 'Volunteers gathered for a briefing before a restoration project',
     placeholder: 'skeleton',
-    status: 'pending',
+    status: 'ready',
     prompt:
       'Candid photograph of a small group of volunteers in a briefing circle outdoors, one person gesturing at a map or clipboard, natural daylight, warm neutral palette.',
   },
@@ -104,7 +104,7 @@ const ASSET_MAP = {
     fit: 'cover',
     alt: 'Hands planting a tree sapling in dark soil',
     placeholder: 'skeleton',
-    status: 'pending',
+    status: 'ready',
     prompt:
       'Close documentary photograph of hands firming soil around a young tree sapling, shallow depth of field, warm natural light, rich green and earth tones.',
   },
@@ -119,7 +119,7 @@ const ASSET_MAP = {
     fit: 'cover',
     alt: 'Volunteers sorting collected waste into labelled containers',
     placeholder: 'skeleton',
-    status: 'pending',
+    status: 'ready',
     prompt:
       'Documentary photograph of volunteers sorting collected waste into labelled bins, organised and purposeful, natural daylight, muted warm palette.',
   },
@@ -134,7 +134,7 @@ const ASSET_MAP = {
     fit: 'cover',
     alt: 'Organisers coordinating supplies before a community event',
     placeholder: 'skeleton',
-    status: 'pending',
+    status: 'ready',
     prompt:
       'Candid photograph of event organisers checking supplies and equipment before a volunteer day, warm neutral palette, natural light.',
   },
@@ -167,7 +167,7 @@ const ASSET_MAP = {
     fit: 'cover',
     alt: '',
     placeholder: 'icon',
-    status: 'pending',
+    status: 'ready',
     prompt:
       'Flat editorial illustration: shoreline with collected debris gathered into a neat pile, 2-3 tone build from #DCEDE2 / #52A276 / #14532D on #FBFAF7, one small #1D4ED8 accent, geometric, no gradients, no text, no faces.',
   },
@@ -182,7 +182,7 @@ const ASSET_MAP = {
     fit: 'cover',
     alt: '',
     placeholder: 'icon',
-    status: 'pending',
+    status: 'ready',
     prompt:
       'Flat editorial illustration: rows of young saplings with a pair of stylised hands placing one, same palette and constraints as the cleanup slot.',
   },
@@ -197,7 +197,7 @@ const ASSET_MAP = {
     fit: 'cover',
     alt: '',
     placeholder: 'icon',
-    status: 'pending',
+    status: 'ready',
     prompt:
       'Flat editorial illustration: stacked silhouettes of old devices being sorted, same palette and constraints as the cleanup slot.',
   },
@@ -212,7 +212,7 @@ const ASSET_MAP = {
     fit: 'cover',
     alt: '',
     placeholder: 'icon',
-    status: 'pending',
+    status: 'ready',
     prompt:
       'Flat editorial illustration: riverbank with reeds and a returning bird, same palette and constraints as the cleanup slot.',
   },
@@ -227,7 +227,7 @@ const ASSET_MAP = {
     fit: 'cover',
     alt: '',
     placeholder: 'icon',
-    status: 'pending',
+    status: 'ready',
     prompt:
       'Flat editorial illustration: abstract gathering circle of simplified figures around a shared plot, same palette and constraints as the cleanup slot.',
   },
@@ -242,7 +242,7 @@ const ASSET_MAP = {
     fit: 'cover',
     alt: '',
     placeholder: 'icon',
-    status: 'pending',
+    status: 'ready',
     prompt:
       'Flat editorial illustration: abstract leaf-and-grid motif, deliberately generic, same palette and constraints as the cleanup slot.',
   },
@@ -320,7 +320,7 @@ const ASSET_MAP = {
     fit: 'cover',
     alt: 'Sproutify — community-led environmental action',
     placeholder: 'mark',
-    status: 'pending',
+    status: 'ready',
     prompt:
       'Social card: wordmark and one-line mission on #FBFAF7 with a #14532D band, generous margins, no photograph.',
   },
