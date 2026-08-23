@@ -3,6 +3,17 @@ import { getPrisma } from "@/lib/prisma";
 import { verifyToken } from "@/lib/auth";
 import { generateEventQRId } from "@/lib/qr-utils";
 
+// Mirrors the EventType enum in prisma/schema.prisma. Anything unrecognised
+// falls back to OTHER rather than throwing a Prisma enum error at the client.
+const VALID_TYPES = new Set([
+  "CLEANUP",
+  "PLANTATION",
+  "EWASTE",
+  "RESTORATION",
+  "COMMUNITY",
+  "OTHER",
+]);
+
 export async function GET(request) {
   try {
     const prisma = await getPrisma();
@@ -62,6 +73,7 @@ export async function POST(request) {
       date,
       startTime,
       endTime,
+      type,
       expectedVolunteers,
       safetyInstructions,
       isFeatured,
@@ -106,7 +118,8 @@ export async function POST(request) {
         date: new Date(date),
         startTime,
         endTime,
-        expectedVolunteers,
+        type: VALID_TYPES.has(type) ? type : 'OTHER',
+        expectedVolunteers: expectedVolunteers ? parseInt(expectedVolunteers, 10) : null,
         safetyInstructions,
         isFeatured: !!isFeatured,
         imageUrl: imageUrl || null,

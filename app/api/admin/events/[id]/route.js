@@ -2,6 +2,16 @@ import { NextResponse } from "next/server";
 import { getPrisma } from "@/lib/prisma";
 import { verifyToken } from "@/lib/auth";
 
+// Mirrors the EventType enum in prisma/schema.prisma.
+const VALID_TYPES = new Set([
+  "CLEANUP",
+  "PLANTATION",
+  "EWASTE",
+  "RESTORATION",
+  "COMMUNITY",
+  "OTHER",
+]);
+
 export async function GET(request, { params }) {
   try {
     const prisma = await getPrisma()
@@ -104,6 +114,7 @@ export async function PATCH(request, { params }) {
       date,
       startTime,
       endTime,
+      type,
       expectedVolunteers,
       safetyInstructions,
       isFeatured,
@@ -127,6 +138,7 @@ export async function PATCH(request, { params }) {
         date: new Date(date),
         startTime,
         endTime,
+        type: VALID_TYPES.has(type) ? type : undefined,
         expectedVolunteers: expectedVolunteers ? parseInt(expectedVolunteers, 10) : null,
         safetyInstructions,
         isFeatured: !!isFeatured,

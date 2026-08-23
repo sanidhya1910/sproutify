@@ -42,3 +42,5 @@ cloudflare-env.d.ts
 next-env.d.ts
 
 /ref
+scripts/_raw/
+scripts/__pycache__/

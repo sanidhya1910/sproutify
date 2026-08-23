@@ -76,7 +76,7 @@ export async function POST(request, { params }) {
 
     return NextResponse.json(
       {
-        message: `Checked in — ${tokensAwarded} EcoTokens awarded`,
+        message: `Checked in. ${tokensAwarded} EcoTokens awarded.`,
         attendance,
         ecoTokens,
         tokensAwarded,
