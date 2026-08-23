@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import Link from 'next/link'
 import { Box, Container, Typography, Button, Paper } from '@mui/material'
 import { ErrorOutline } from '@mui/icons-material'
-import Navbar from '@/components/common/Navbar'
+import Navbar from '@/components/chrome/Navbar'
 
 export default function Error({
   error,
