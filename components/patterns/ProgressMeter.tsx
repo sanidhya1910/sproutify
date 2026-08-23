@@ -30,7 +30,7 @@ export function ProgressMeter({
 
   return (
     <div className={cn('w-full', className)}>
-      {(label || pct !== null) && (
+      {(label || pct !== null || emptyLabel) && (
         <div className="mb-1.5 flex items-baseline justify-between gap-2">
           {label && <span className="text-label text-muted-foreground">{label}</span>}
           <span className="tnum text-label text-foreground">

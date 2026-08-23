@@ -16,11 +16,7 @@
     "seed": "node prisma/seed.js"
   },
   "dependencies": {
-    "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.14.1",
     "@hookform/resolvers": "^3.9.0",
-    "@mui/icons-material": "^7.3.2",
-    "@mui/material": "^7.3.2",
     "@number-flow/react": "^0.5.10",
     "@opennextjs/cloudflare": "^1.20.2",
     "@prisma/adapter-pg": "^6.19.3",

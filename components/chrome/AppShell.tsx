@@ -10,6 +10,7 @@ import {
   CalendarCheck,
   Gift,
   Users,
+  Mail,
   Menu,
   LogOut,
   ChevronDown,
@@ -63,6 +64,7 @@ const ADMIN_NAV: NavItem[] = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/events', label: 'Events', icon: CalendarDays },
   { href: '/admin/volunteers', label: 'Volunteers', icon: Users },
+  { href: '/admin/messages', label: 'Messages', icon: Mail },
 ]
 
 interface SessionUser {
