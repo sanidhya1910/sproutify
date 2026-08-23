@@ -27,6 +27,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { StatusPill } from '@/components/patterns/StatusPill'
+import { useDisplayName } from '@/lib/use-display-name'
 import { cn } from '@/lib/utils'
 
 /**
@@ -81,7 +82,7 @@ function useSessionUser(): SessionUser | null {
     try {
       setUser(JSON.parse(atob(token.split('.')[1])))
     } catch {
-      // Malformed token — AuthGuard handles the redirect; nothing to show here.
+      // Malformed token: AuthGuard handles the redirect; nothing to show here.
     }
   }, [])
   return user
@@ -125,6 +126,7 @@ function initials(name?: string) {
 function UserMenu({ user }: { user: SessionUser | null }) {
   const router = useRouter()
   const isAdmin = user?.role === 'ADMIN'
+  const displayName = useDisplayName(user?.name)
 
   const logout = () => {
     localStorage.removeItem('token')
@@ -136,15 +138,15 @@ function UserMenu({ user }: { user: SessionUser | null }) {
       <DropdownMenuTrigger asChild>
         <button className="flex items-center gap-2 rounded-md px-2 py-1.5 transition-colors hover:bg-surface-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
           <span className="flex size-8 items-center justify-center rounded-full bg-primary-100 text-caption font-semibold text-primary-800">
-            {initials(user?.name)}
+            {initials(displayName)}
           </span>
-          <span className="hidden text-body text-foreground sm:inline">{user?.name ?? 'Account'}</span>
+          <span className="hidden text-body text-foreground sm:inline">{displayName ?? 'Account'}</span>
           <ChevronDown size={16} className="text-muted-foreground" strokeWidth={1.75} />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-60">
         <DropdownMenuLabel className="font-normal">
-          <p className="text-body font-medium text-foreground">{user?.name ?? 'Signed in'}</p>
+          <p className="text-body font-medium text-foreground">{displayName ?? 'Signed in'}</p>
           {user?.email && (
             <p className="truncate text-body-sm text-muted-foreground">{user.email}</p>
           )}
