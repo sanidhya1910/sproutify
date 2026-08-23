@@ -1,47 +1,37 @@
-"use client"
-
 import Link from 'next/link'
-import { Box, Container, Typography, Button, Paper } from '@mui/material'
-import { Nature } from '@mui/icons-material'
+import { Compass } from 'lucide-react'
 import Navbar from '@/components/chrome/Navbar'
+import Footer from '@/components/chrome/Footer'
+import { Container } from '@/components/patterns/Container'
+import { EmptyState } from '@/components/patterns/EmptyState'
+import { Button } from '@/components/ui/button'
 
 export default function NotFound() {
   return (
-    <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div className="flex min-h-dvh flex-col">
       <Navbar />
-      <Container
-        maxWidth="sm"
-        sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', py: 8 }}
-      >
-        <Paper
-          elevation={0}
-          sx={{
-            p: { xs: 4, md: 6 },
-            borderRadius: '24px',
-            textAlign: 'center',
-            border: '1px solid rgba(0, 0, 0, 0.08)',
-          }}
-        >
-          <Nature sx={{ fontSize: '3.5rem', color: 'primary.main', mb: 2 }} />
-          <Typography variant="h3" sx={{ fontWeight: 800, mb: 1 }}>
-            404
-          </Typography>
-          <Typography variant="h6" sx={{ mb: 1 }}>
-            This page has wandered off the trail
-          </Typography>
-          <Typography variant="body1" sx={{ color: 'text.secondary', mb: 4 }}>
-            The page you&apos;re looking for doesn&apos;t exist or may have moved.
-          </Typography>
-          <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Button component={Link} href="/events" variant="outlined">
-              Browse events
-            </Button>
-            <Button component={Link} href="/" variant="contained">
-              Go home
-            </Button>
-          </Box>
-        </Paper>
-      </Container>
-    </Box>
+      <main className="flex flex-1 items-center">
+        <Container className="py-16">
+          <div className="mx-auto max-w-lg">
+            <EmptyState
+              icon={Compass}
+              title="This page has wandered off the trail"
+              description="The page you're looking for doesn't exist, or may have moved."
+              action={
+                <div className="flex gap-3">
+                  <Button asChild variant="secondary">
+                    <Link href="/events">Browse events</Link>
+                  </Button>
+                  <Button asChild>
+                    <Link href="/">Go home</Link>
+                  </Button>
+                </div>
+              }
+            />
+          </div>
+        </Container>
+      </main>
+      <Footer />
+    </div>
   )
 }

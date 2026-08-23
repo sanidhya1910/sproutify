@@ -40,6 +40,10 @@ model Event {
   date             DateTime
   startTime        String
   endTime          String
+  // Added in Phase 2. The UI has filtered and colour-coded by `type` since
+  // before this column existed, which meant the volunteer events type filter
+  // always matched nothing and every event fell back to a generic label.
+  type             EventType @default(OTHER)
   expectedVolunteers Int?
   safetyInstructions String?
   isFeatured       Boolean  @default(false)
@@ -125,4 +129,36 @@ enum RedemptionStatus {
 enum Role {
   ADMIN
   VOLUNTEER
+}
+enum EventType {
+  CLEANUP
+  PLANTATION
+  EWASTE
+  RESTORATION
+  COMMUNITY
+  OTHER
+}
+
+/// Submissions from the public /contact form. Before Phase 2 that form's
+/// submit handler was a 2-second setTimeout that discarded the message
+/// entirely while showing a success confirmation.
+model ContactMessage {
+  id        String        @id @default(cuid())
+  name      String
+  email     String
+  subject   String
+  phone     String?
+  message   String
+  status    ContactStatus @default(NEW)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([status, createdAt])
+  @@map("contact_messages")
+}
+
+enum ContactStatus {
+  NEW
+  READ
+  ARCHIVED
 }
