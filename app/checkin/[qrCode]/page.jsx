@@ -19,7 +19,7 @@ import {
   LocationOn,
   Schedule,
 } from '@mui/icons-material'
-import Navbar from '@/components/common/Navbar'
+import Navbar from '@/components/chrome/Navbar'
 
 function formatDate(dateString) {
   try {
