@@ -348,7 +348,7 @@ function DetailBody({ id }: { id: string }) {
 export default function AdminEventDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
   return (
-    <AuthGuard requiredRole="ADMIN">
+    <AuthGuard requiredRole={['ADMIN', 'ORGANIZER']}>
       <DetailBody id={id} />
     </AuthGuard>
   )

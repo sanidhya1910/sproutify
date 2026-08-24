@@ -2,7 +2,7 @@
 
 import { use } from 'react'
 import Link from 'next/link'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import {
   ArrowLeft,
@@ -22,7 +22,8 @@ import { AssetImage } from '@/components/patterns/AssetImage'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { apiGet, apiPost, apiDelete, ApiError } from '@/lib/api'
+import { apiGet, ApiError } from '@/lib/api'
+import { useEffectiveRegistrations } from '@/lib/use-effective-registrations'
 import { resolveEventType } from '@/lib/event-types'
 import { formatEventDate, formatEventTime, isEventPast } from '@/lib/format'
 import type { AssetId } from '@/lib/assets'
@@ -44,44 +45,26 @@ const WHAT_TO_BRING = [
 ] as const
 
 function EventBody({ id }: { id: string }) {
-  const queryClient = useQueryClient()
-
   const eventQuery = useQuery({
     queryKey: ['volunteer-event', id],
     queryFn: () => apiGet<EventCardEvent>(`/api/volunteer/events/${id}`),
     retry: (count, err) => !(err instanceof ApiError && err.status === 404) && count < 2,
   })
 
-  const registrationQuery = useQuery({
-    queryKey: ['volunteer-event-registration', id],
-    queryFn: () => apiGet<{ isRegistered: boolean }>(`/api/volunteer/events/${id}/registration`),
-  })
+  // Registering/cancelling here is session-only — see lib/local-overrides.ts.
+  // Nothing is sent to the server; the seeded baseline is untouched and this
+  // reverts on logout.
+  const { isRegistered, register, unregister } = useEffectiveRegistrations()
+  const registered = isRegistered(id)
 
-  const invalidate = () => {
-    queryClient.invalidateQueries({ queryKey: ['volunteer-event-registration', id] })
-    queryClient.invalidateQueries({ queryKey: ['volunteer-event', id] })
-    queryClient.invalidateQueries({ queryKey: ['my-events'] })
-    queryClient.invalidateQueries({ queryKey: ['volunteer-dashboard'] })
-    queryClient.invalidateQueries({ queryKey: ['volunteer-registrations'] })
+  const handleRegister = () => {
+    register(id)
+    toast.success('You are registered. See you there.')
   }
-
-  const register = useMutation({
-    mutationFn: () => apiPost('/api/volunteer/register', { eventId: id }),
-    onSuccess: () => {
-      toast.success('You are registered. See you there.')
-      invalidate()
-    },
-    onError: (e: Error) => toast.error(e.message || 'Registration failed'),
-  })
-
-  const unregister = useMutation({
-    mutationFn: () => apiDelete('/api/volunteer/unregister', { eventId: id }),
-    onSuccess: () => {
-      toast.success('Registration cancelled')
-      invalidate()
-    },
-    onError: (e: Error) => toast.error(e.message || 'Could not cancel registration'),
-  })
+  const handleUnregister = () => {
+    unregister(id)
+    toast.success('Registration cancelled')
+  }
 
   if (eventQuery.isLoading) {
     return (
@@ -118,8 +101,6 @@ function EventBody({ id }: { id: string }) {
   const Icon = type.icon
   const past = isEventPast(event.date)
   const time = formatEventTime(event.startTime, event.endTime)
-  const registered = registrationQuery.data?.isRegistered ?? false
-  const busy = register.isPending || unregister.isPending
 
   return (
     <>
@@ -251,17 +232,12 @@ function EventBody({ id }: { id: string }) {
               {!past && (
                 <div className="mt-6 border-t border-border pt-5">
                   {registered ? (
-                    <Button
-                      variant="secondary"
-                      className="w-full"
-                      disabled={busy}
-                      onClick={() => unregister.mutate()}
-                    >
-                      {unregister.isPending ? 'Cancelling…' : 'Cancel registration'}
+                    <Button variant="secondary" className="w-full" onClick={handleUnregister}>
+                      Cancel registration
                     </Button>
                   ) : (
-                    <Button className="w-full" disabled={busy} onClick={() => register.mutate()}>
-                      {register.isPending ? 'Registering…' : 'Register for this event'}
+                    <Button className="w-full" onClick={handleRegister}>
+                      Register for this event
                     </Button>
                   )}
                 </div>

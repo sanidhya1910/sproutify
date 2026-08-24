@@ -134,7 +134,7 @@ function QrBody({ id }: { id: string }) {
 export default function EventQrPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
   return (
-    <AuthGuard requiredRole="ADMIN">
+    <AuthGuard requiredRole={['ADMIN', 'ORGANIZER']}>
       <QrBody id={id} />
     </AuthGuard>
   )

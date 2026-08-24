@@ -8,7 +8,7 @@ import { EventForm, EMPTY_EVENT } from '@/components/events/EventForm'
 
 export default function CreateEventPage() {
   return (
-    <AuthGuard requiredRole="ADMIN">
+    <AuthGuard requiredRole={['ADMIN', 'ORGANIZER']}>
       <Link
         href="/admin/events"
         className="inline-flex items-center gap-1.5 text-body-sm text-muted-foreground transition-colors hover:text-foreground"

@@ -30,6 +30,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { apiGet } from '@/lib/api'
+import { useSessionRole } from '@/lib/use-session-role'
 import { resolveEventType } from '@/lib/event-types'
 import { formatEventDateShort, formatNumber } from '@/lib/format'
 
@@ -84,6 +85,10 @@ function DashboardBody() {
     queryFn: () => apiGet<AdminDashboard>('/api/admin/dashboard'),
   })
 
+  // Must sit above the early returns below: hooks cannot be conditional.
+  const role = useSessionRole()
+  const isHost = role === 'ORGANIZER'
+
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -118,9 +123,13 @@ function DashboardBody() {
   return (
     <>
       <PageHeader
-        eyebrow="Admin"
+        eyebrow={isHost ? 'Host' : 'Admin'}
         title="Dashboard"
-        description="Events, volunteers and platform activity."
+        description={
+          isHost
+            ? 'Your events and volunteer activity.'
+            : 'Events, volunteers and platform activity.'
+        }
         actions={
           <div className="flex gap-2">
             {data.newMessages > 0 && (
@@ -320,7 +329,7 @@ function DashboardBody() {
 
 export default function AdminDashboardPage() {
   return (
-    <AuthGuard requiredRole="ADMIN">
+    <AuthGuard requiredRole={['ADMIN', 'ORGANIZER']}>
       <DashboardBody />
     </AuthGuard>
   )

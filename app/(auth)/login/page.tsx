@@ -46,7 +46,7 @@ function LoginForm() {
 
       if (redirect && redirect.startsWith('/')) {
         router.push(redirect)
-      } else if (data.user.role === 'ADMIN') {
+      } else if (data.user.role === 'ADMIN' || data.user.role === 'ORGANIZER') {
         router.push('/admin/dashboard')
       } else {
         router.push('/volunteer/dashboard')

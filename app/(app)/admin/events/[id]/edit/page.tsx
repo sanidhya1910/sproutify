@@ -99,7 +99,7 @@ function EditBody({ id }: { id: string }) {
 export default function EditEventPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
   return (
-    <AuthGuard requiredRole="ADMIN">
+    <AuthGuard requiredRole={['ADMIN', 'ORGANIZER']}>
       <EditBody id={id} />
     </AuthGuard>
   )

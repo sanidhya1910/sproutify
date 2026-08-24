@@ -22,6 +22,8 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { apiGet } from '@/lib/api'
 import { useDisplayName } from '@/lib/use-display-name'
+import { useEffectiveRegistrations } from '@/lib/use-effective-registrations'
+import { useLocalOverrides } from '@/lib/local-overrides'
 import { resolveEventType } from '@/lib/event-types'
 import { formatEventDateShort, formatEventTime, formatRelative } from '@/lib/format'
 
@@ -65,6 +67,8 @@ function DashboardBody() {
 
   // Must sit above the early returns below: hooks cannot be conditional.
   const displayName = useDisplayName(data?.user?.name)
+  const { registeredUpcomingEvents } = useEffectiveRegistrations()
+  const overrides = useLocalOverrides()
 
   if (isLoading) {
     return (
@@ -97,6 +101,18 @@ function DashboardBody() {
 
   const { stats, deltas } = data
 
+  // Session-only registrations (lib/local-overrides.ts) layered on top of the
+  // server's real upcoming list: a local cancellation hides a seeded entry
+  // without touching it, and a local registration for an event the server
+  // doesn't know about yet is pulled in from the catalog.
+  const serverUpcoming = data.upcomingEvents.filter((e) => overrides[e.id] !== false)
+  const knownIds = new Set(serverUpcoming.map((e) => e.id))
+  const localOnlyUpcoming = registeredUpcomingEvents.filter((e) => !knownIds.has(e.id))
+  const effectiveUpcoming = [...serverUpcoming, ...localOnlyUpcoming]
+    .slice()
+    .sort((a, b) => new Date(a.date ?? 0).getTime() - new Date(b.date ?? 0).getTime())
+  const effectiveUpcomingCount = effectiveUpcoming.length
+
   return (
     <>
       <PageHeader
@@ -126,7 +142,7 @@ function DashboardBody() {
         />
         <StatCard
           label="Upcoming events"
-          value={stats.upcomingEvents}
+          value={effectiveUpcomingCount}
           icon={CalendarClock}
           delta={
             deltas.upcomingThisWeek > 0
@@ -151,14 +167,14 @@ function DashboardBody() {
           <Card>
             <CardHeader className="flex-row items-center justify-between">
               <CardTitle>Your upcoming events</CardTitle>
-              {data.upcomingEvents.length > 0 && (
+              {effectiveUpcoming.length > 0 && (
                 <Button asChild variant="ghost" size="sm">
                   <Link href="/volunteer/my-events">View all</Link>
                 </Button>
               )}
             </CardHeader>
             <CardContent>
-              {data.upcomingEvents.length === 0 ? (
+              {effectiveUpcoming.length === 0 ? (
                 <EmptyState
                   icon={CalendarX2}
                   title="Nothing scheduled yet"
@@ -171,7 +187,7 @@ function DashboardBody() {
                 />
               ) : (
                 <ul className="divide-y divide-border">
-                  {data.upcomingEvents.map((event) => {
+                  {effectiveUpcoming.slice(0, 5).map((event) => {
                     const type = resolveEventType(event)
                     const Icon = type.icon
                     return (

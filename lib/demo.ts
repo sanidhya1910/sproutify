@@ -16,7 +16,7 @@ export const DEMO_PASSWORD = 'TestPassword123'
 
 export interface DemoAccount {
   label: string
-  role: 'Admin' | 'Volunteer'
+  role: 'Admin' | 'Volunteer' | 'Host'
   email: string
   password: string
   blurb: string
@@ -26,9 +26,16 @@ export const DEMO_ACCOUNTS: DemoAccount[] = [
   {
     label: 'Volunteer',
     role: 'Volunteer',
-    email: 'kavya.iyer@example.com',
+    email: 'sanidhya.ravi@example.com',
     password: DEMO_PASSWORD,
     blurb: 'Four events attended, 80 EcoTokens, two upcoming signups.',
+  },
+  {
+    label: 'Host',
+    role: 'Host',
+    email: 'host@example.com',
+    password: DEMO_PASSWORD,
+    blurb: 'Mumbai Beach Warriors — hosts and manages its own events.',
   },
   {
     label: 'Admin',
@@ -60,8 +67,11 @@ export interface LocalAccount {
   backedBy: string
 }
 
-/** The seeded account that browser-only registrations borrow a session from. */
+/** The seeded account that browser-only volunteer registrations borrow a session from. */
 export const DEMO_VOLUNTEER = DEMO_ACCOUNTS.find((a) => a.role === 'Volunteer')!
+
+/** The seeded account that browser-only host registrations borrow a session from. */
+export const DEMO_HOST = DEMO_ACCOUNTS.find((a) => a.role === 'Host')!
 
 export function saveLocalAccount(account: LocalAccount) {
   if (typeof window === 'undefined') return

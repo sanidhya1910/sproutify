@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { CalendarX2, MapPin, CalendarDays, CheckCircle2 } from 'lucide-react'
 import AuthGuard from '@/components/auth/auth-guard'
@@ -23,7 +23,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { apiGet, apiDelete } from '@/lib/api'
+import { apiGet } from '@/lib/api'
+import { useEffectiveRegistrations } from '@/lib/use-effective-registrations'
+import { useLocalOverrides } from '@/lib/local-overrides'
 import { resolveEventType } from '@/lib/event-types'
 import { formatEventDateShort, formatEventTime, isEventPast } from '@/lib/format'
 
@@ -31,6 +33,14 @@ import { formatEventDateShort, formatEventTime, isEventPast } from '@/lib/format
  * Rebuilt from a Tailwind page that used a native window.confirm() to gate
  * unregistering and native alert() for every error. Those are now an
  * AlertDialog and toasts.
+ *
+ * "Past" is always the real seeded history from the server — you cannot
+ * register or cancel for a past event, so nothing here is session-local.
+ * "Upcoming" merges that same server baseline with session-only overrides
+ * (lib/local-overrides.ts): a locally-added registration for an event the
+ * server doesn't know about is pulled in from the full events catalog via
+ * useEffectiveRegistrations, and a local cancellation hides a seeded
+ * registration without touching it.
  */
 
 interface MyEvent {
@@ -46,7 +56,6 @@ interface MyEvent {
 }
 
 function MyEventsBody() {
-  const queryClient = useQueryClient()
   const [tab, setTab] = useState<'upcoming' | 'past' | 'all'>('upcoming')
   const [pendingUnregister, setPendingUnregister] = useState<MyEvent | null>(null)
 
@@ -55,33 +64,50 @@ function MyEventsBody() {
     queryFn: () => apiGet<MyEvent[]>('/api/volunteer/my-events'),
   })
 
-  const unregister = useMutation({
-    mutationFn: (eventId: string) => apiDelete('/api/volunteer/unregister', { eventId }),
-    onSuccess: () => {
-      toast.success('Registration cancelled')
-      queryClient.invalidateQueries({ queryKey: ['my-events'] })
-      queryClient.invalidateQueries({ queryKey: ['volunteer-dashboard'] })
-      queryClient.invalidateQueries({ queryKey: ['volunteer-registrations'] })
-    },
-    onError: (e: Error) => toast.error(e.message || 'Could not cancel registration'),
-    onSettled: () => setPendingUnregister(null),
-  })
+  const { registeredUpcomingEvents, unregister } = useEffectiveRegistrations()
+  const overrides = useLocalOverrides()
 
-  const all = data ?? []
-  const counts = useMemo(
-    () => ({
-      upcoming: all.filter((e) => !isEventPast(e.date)).length,
-      past: all.filter((e) => isEventPast(e.date)).length,
-      all: all.length,
-    }),
-    [all]
-  )
+  const serverEvents = data ?? []
+  const past = useMemo(() => serverEvents.filter((e) => isEventPast(e.date)), [serverEvents])
 
-  const events = useMemo(() => {
-    if (tab === 'upcoming') return all.filter((e) => !isEventPast(e.date))
-    if (tab === 'past') return all.filter((e) => isEventPast(e.date))
-    return all
-  }, [all, tab])
+  // Server upcoming, minus anything locally cancelled this session, plus
+  // anything locally registered this session that the server doesn't know
+  // about yet — deduped by id, server copy wins (it carries `attendances`).
+  const upcoming = useMemo(() => {
+    const serverUpcoming = serverEvents.filter(
+      (e) => !isEventPast(e.date) && overrides[e.id] !== false
+    )
+    const knownIds = new Set(serverUpcoming.map((e) => e.id))
+    // Normalised to MyEvent shape: a locally-registered event sourced from
+    // the catalog never has real `attendances` (it's upcoming, by
+    // definition unattended) and its `date` is always present for anything
+    // that made it through isEventPast, so the cast is safe.
+    const localOnly: MyEvent[] = registeredUpcomingEvents
+      .filter((e) => !knownIds.has(e.id) && e.date)
+      .map((e) => ({
+        id: e.id,
+        title: e.title,
+        description: e.description,
+        location: e.location,
+        date: e.date as string,
+        startTime: e.startTime,
+        endTime: e.endTime,
+        type: e.type,
+      }))
+    return [...serverUpcoming, ...localOnly]
+  }, [serverEvents, overrides, registeredUpcomingEvents])
+
+  const all = useMemo(() => [...upcoming, ...past], [upcoming, past])
+
+  const counts = { upcoming: upcoming.length, past: past.length, all: all.length }
+
+  const events = tab === 'upcoming' ? upcoming : tab === 'past' ? past : all
+
+  const handleUnregister = (event: MyEvent) => {
+    unregister(event.id)
+    toast.success('Registration cancelled')
+    setPendingUnregister(null)
+  }
 
   return (
     <>
@@ -144,7 +170,7 @@ function MyEventsBody() {
             {events.map((event) => {
               const type = resolveEventType(event)
               const Icon = type.icon
-              const past = isEventPast(event.date)
+              const isPast = isEventPast(event.date)
               const attended = (event.attendances?.length ?? 0) > 0
               const time = formatEventTime(event.startTime, event.endTime)
 
@@ -164,7 +190,7 @@ function MyEventsBody() {
                             >
                               {event.title}
                             </Link>
-                            {past && <StatusPill tone="neutral">Past</StatusPill>}
+                            {isPast && <StatusPill tone="neutral">Past</StatusPill>}
                             {attended && (
                               <StatusPill tone="success">
                                 <CheckCircle2 size={13} strokeWidth={2} />
@@ -199,7 +225,7 @@ function MyEventsBody() {
                         <Button asChild variant="secondary" size="sm">
                           <Link href={`/volunteer/events/${event.id}`}>Details</Link>
                         </Button>
-                        {!past && (
+                        {!isPast && (
                           <Button
                             variant="ghost"
                             size="sm"
@@ -233,16 +259,15 @@ function MyEventsBody() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={unregister.isPending}>Keep it</AlertDialogCancel>
+            <AlertDialogCancel>Keep it</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              disabled={unregister.isPending}
               onClick={(e) => {
                 e.preventDefault()
-                if (pendingUnregister) unregister.mutate(pendingUnregister.id)
+                if (pendingUnregister) handleUnregister(pendingUnregister)
               }}
             >
-              {unregister.isPending ? 'Cancelling…' : 'Cancel registration'}
+              Cancel registration
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -12,12 +12,16 @@ import { useRouter } from 'next/navigation'
  * Note this is a client-side redirect for UX only. Real authorisation is
  * enforced per-route in app/api/**, which is where it must stay.
  */
+type Role = 'ADMIN' | 'VOLUNTEER' | 'ORGANIZER'
+
 export default function AuthGuard({
   children,
   requiredRole = null,
 }: {
   children: React.ReactNode
-  requiredRole?: 'ADMIN' | 'VOLUNTEER' | null
+  /** A single role, or any of several — e.g. admin event pages accept both
+   *  ADMIN (sees everything) and ORGANIZER (scoped to their own events). */
+  requiredRole?: Role | Role[] | null
 }) {
   const [isAuthorized, setIsAuthorized] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
@@ -41,7 +45,8 @@ export default function AuthGuard({
         return
       }
 
-      if (requiredRole && payload.role !== requiredRole) {
+      const allowedRoles = requiredRole == null ? null : Array.isArray(requiredRole) ? requiredRole : [requiredRole]
+      if (allowedRoles && !allowedRoles.includes(payload.role)) {
         router.push('/unauthorized')
         return
       }

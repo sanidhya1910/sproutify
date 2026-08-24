@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getPrisma } from "@/lib/prisma";
-import { verifyToken } from "@/lib/auth";
 import { generateEventQRId } from "@/lib/qr-utils";
+import { requireEventManager } from "@/lib/admin-auth";
 
 // Mirrors the EventType enum in prisma/schema.prisma. Anything unrecognised
 // falls back to OTHER rather than throwing a Prisma enum error at the client.
@@ -17,18 +17,12 @@ const VALID_TYPES = new Set([
 export async function GET(request) {
   try {
     const prisma = await getPrisma();
-    const token = request.headers.get("Authorization")?.replace("Bearer ", "");
-
-    if (!token) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
-
-    const decoded = verifyToken(token);
-    if (!decoded || decoded.role !== "ADMIN") {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
+    const auth = requireEventManager(request);
+    if (auth instanceof NextResponse) return auth;
 
     const events = await prisma.event.findMany({
+      // A host sees only what they created; an admin sees the platform.
+      where: auth.isHost ? { creatorId: auth.decoded.userId } : undefined,
       orderBy: {
         date: "desc",
       },
@@ -55,16 +49,8 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     const prisma = await getPrisma();
-    const token = request.headers.get("Authorization")?.replace("Bearer ", "");
-
-    if (!token) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
-
-    const decoded = verifyToken(token);
-    if (!decoded || decoded.role !== "ADMIN") {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
+    const auth = requireEventManager(request);
+    if (auth instanceof NextResponse) return auth;
 
     const {
       title,
@@ -121,10 +107,13 @@ export async function POST(request) {
         type: VALID_TYPES.has(type) ? type : 'OTHER',
         expectedVolunteers: expectedVolunteers ? parseInt(expectedVolunteers, 10) : null,
         safetyInstructions,
-        isFeatured: !!isFeatured,
+        // Sitewide featured placement is an admin call, not self-service —
+        // a host featuring their own event on the homepage without review
+        // would be a moderation hole.
+        isFeatured: auth.isAdmin ? !!isFeatured : false,
         imageUrl: imageUrl || null,
         qrCode,
-        creatorId: decoded.userId,
+        creatorId: auth.decoded.userId,
       },
     });
 

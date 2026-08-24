@@ -36,7 +36,9 @@ export function DemoCredentials({
             >
               <span className="flex items-center justify-between gap-2">
                 <span className="truncate font-medium text-foreground">{account.email}</span>
-                <StatusPill tone={account.role === 'Admin' ? 'primary' : 'neutral'}>
+                <StatusPill
+                  tone={account.role === 'Admin' ? 'primary' : account.role === 'Host' ? 'info' : 'neutral'}
+                >
                   {account.label}
                 </StatusPill>
               </span>

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getPrisma } from "@/lib/prisma";
-import { verifyToken } from "@/lib/auth";
+import { requireEventManager, forbidIfNotOwner } from "@/lib/admin-auth";
 
 // Mirrors the EventType enum in prisma/schema.prisma.
 const VALID_TYPES = new Set([
@@ -15,22 +15,8 @@ const VALID_TYPES = new Set([
 export async function GET(request, { params }) {
   try {
     const prisma = await getPrisma()
-    const token = request.headers.get('Authorization')?.replace('Bearer ', '')
-
-    if (!token) {
-      return NextResponse.json(
-        { message: 'Unauthorized' },
-        { status: 401 }
-      )
-    }
-
-    const decoded = verifyToken(token)
-    if (!decoded || decoded.role !== 'ADMIN') {
-      return NextResponse.json(
-        { message: 'Unauthorized' },
-        { status: 401 }
-      )
-    }
+    const auth = requireEventManager(request)
+    if (auth instanceof NextResponse) return auth
 
     const event = await prisma.event.findUnique({
       where: {
@@ -78,6 +64,9 @@ export async function GET(request, { params }) {
       return NextResponse.json({ message: "Event not found" }, { status: 404 });
     }
 
+    const forbidden = forbidIfNotOwner(auth, event)
+    if (forbidden) return forbidden
+
     return NextResponse.json(event);
   } catch (error) {
     console.error("Event fetch error:", error);
@@ -91,21 +80,16 @@ export async function GET(request, { params }) {
 export async function PATCH(request, { params }) {
   try {
     const prisma = await getPrisma()
-    const token = request.headers.get('Authorization')?.replace('Bearer ', '')
-
-    if (!token) {
-      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
-    }
-
-    const decoded = verifyToken(token)
-    if (!decoded || decoded.role !== 'ADMIN') {
-      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
-    }
+    const auth = requireEventManager(request)
+    if (auth instanceof NextResponse) return auth
 
     const existing = await prisma.event.findUnique({ where: { id: params.id } })
     if (!existing) {
       return NextResponse.json({ message: 'Event not found' }, { status: 404 })
     }
+
+    const forbidden = forbidIfNotOwner(auth, existing)
+    if (forbidden) return forbidden
 
     const {
       title,
@@ -141,7 +125,8 @@ export async function PATCH(request, { params }) {
         type: VALID_TYPES.has(type) ? type : undefined,
         expectedVolunteers: expectedVolunteers ? parseInt(expectedVolunteers, 10) : null,
         safetyInstructions,
-        isFeatured: !!isFeatured,
+        // Same reasoning as create: a host cannot self-feature.
+        isFeatured: auth.isAdmin ? !!isFeatured : existing.isFeatured,
         imageUrl: imageUrl || null,
       },
     })
@@ -156,16 +141,8 @@ export async function PATCH(request, { params }) {
 export async function DELETE(request, { params }) {
   try {
     const prisma = await getPrisma()
-    const token = request.headers.get("Authorization")?.replace("Bearer ", "");
-
-    if (!token) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
-
-    const decoded = verifyToken(token);
-    if (!decoded || decoded.role !== "ADMIN") {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
+    const auth = requireEventManager(request)
+    if (auth instanceof NextResponse) return auth
 
     const event = await prisma.event.findUnique({
       where: {
@@ -176,6 +153,9 @@ export async function DELETE(request, { params }) {
     if (!event) {
       return NextResponse.json({ message: "Event not found" }, { status: 404 });
     }
+
+    const forbidden = forbidIfNotOwner(auth, event)
+    if (forbidden) return forbidden
 
     await prisma.event.delete({
       where: {

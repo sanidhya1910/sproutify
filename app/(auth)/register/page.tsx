@@ -3,25 +3,38 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Eye, EyeOff, Info } from 'lucide-react'
+import { Eye, EyeOff, Info, HeartHandshake, Building2 } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { apiPost } from '@/lib/api'
-import { DEMO_MODE, DEMO_VOLUNTEER, saveLocalAccount } from '@/lib/demo'
+import { DEMO_MODE, DEMO_VOLUNTEER, DEMO_HOST, saveLocalAccount } from '@/lib/demo'
+import { cn } from '@/lib/utils'
+
+type AccountKind = 'volunteer' | 'host'
 
 /**
- * Note: no role selector. Self-service admin signup was removed earlier —
- * the API forces role VOLUNTEER regardless of what the client sends, and
- * admins are promoted by an existing admin.
+ * Two account kinds: a volunteer joins events, a host (an NGO or community
+ * group) creates and manages them. Real self-service admin signup was
+ * removed earlier — the API forces role VOLUNTEER regardless of what the
+ * client sends — so in demo mode the toggle picks which seeded demo account
+ * the browser-only profile borrows a session from, rather than which role
+ * gets written to the database. See lib/demo.ts.
  *
  * Also fixes `width: '100vw'` on the old page, which caused horizontal
  * scroll whenever a scrollbar was present.
  */
 export default function RegisterPage() {
   const router = useRouter()
-  const [form, setForm] = useState({ name: '', email: '', password: '', confirmPassword: '' })
+  const [kind, setKind] = useState<AccountKind>('volunteer')
+  const [form, setForm] = useState({
+    name: '',
+    organization: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  })
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -42,29 +55,36 @@ export default function RegisterPage() {
       setError('Password must be at least 6 characters long')
       return
     }
+    if (kind === 'host' && !form.organization.trim()) {
+      setError('Organisation name is required for a host account')
+      return
+    }
 
     setLoading(true)
     try {
       if (DEMO_MODE) {
         // Demo build: the profile is kept in browser storage and no database
         // row is created, so visitors can complete signup without adding to
-        // the seeded dataset. The session itself is borrowed from the demo
-        // volunteer, because a browser-only account has no row to issue a
-        // token against and every authenticated endpoint would reject it.
+        // the seeded dataset. The session itself is borrowed from whichever
+        // demo account matches the chosen account kind, because a
+        // browser-only account has no row to issue a token against and every
+        // authenticated endpoint would reject it.
+        const backing = kind === 'host' ? DEMO_HOST : DEMO_VOLUNTEER
+
         saveLocalAccount({
-          name: form.name,
+          name: kind === 'host' ? form.organization : form.name,
           email: form.email,
           createdAt: new Date().toISOString(),
-          backedBy: DEMO_VOLUNTEER.email,
+          backedBy: backing.email,
         })
 
         const data = await apiPost<{ token: string }>(
           '/api/auth/login',
-          { email: DEMO_VOLUNTEER.email, password: DEMO_VOLUNTEER.password },
+          { email: backing.email, password: backing.password },
           false
         )
         localStorage.setItem('token', data.token)
-        router.push('/volunteer/dashboard')
+        router.push(kind === 'host' ? '/admin/dashboard' : '/volunteer/dashboard')
         return
       }
 
@@ -84,16 +104,50 @@ export default function RegisterPage() {
     <Card className="w-full max-w-md p-6 md:p-8">
       <h1 className="text-h1 text-foreground">Create your account</h1>
       <p className="mt-1.5 text-body text-muted-foreground">
-        Register for events, track your impact and earn EcoTokens.
+        {kind === 'host'
+          ? 'Host events with your organisation and manage your own volunteers.'
+          : 'Register for events, track your impact and earn EcoTokens.'}
       </p>
+
+      {/* Account kind toggle */}
+      <div className="mt-5 grid grid-cols-2 gap-2 rounded-lg border border-border bg-surface-sunken p-1">
+        <button
+          type="button"
+          onClick={() => setKind('volunteer')}
+          className={cn(
+            'flex items-center justify-center gap-2 rounded-md px-3 py-2 text-body-sm font-medium transition-colors',
+            kind === 'volunteer'
+              ? 'bg-surface text-foreground shadow-xs'
+              : 'text-muted-foreground hover:text-foreground'
+          )}
+          aria-pressed={kind === 'volunteer'}
+        >
+          <HeartHandshake size={16} strokeWidth={1.75} />
+          Volunteer
+        </button>
+        <button
+          type="button"
+          onClick={() => setKind('host')}
+          className={cn(
+            'flex items-center justify-center gap-2 rounded-md px-3 py-2 text-body-sm font-medium transition-colors',
+            kind === 'host'
+              ? 'bg-surface text-foreground shadow-xs'
+              : 'text-muted-foreground hover:text-foreground'
+          )}
+          aria-pressed={kind === 'host'}
+        >
+          <Building2 size={16} strokeWidth={1.75} />
+          Host / NGO
+        </button>
+      </div>
 
       {DEMO_MODE && (
         <div className="mt-5 flex items-start gap-2.5 rounded-md border border-border bg-surface-sunken p-3">
           <Info size={15} strokeWidth={1.75} className="mt-0.5 shrink-0 text-primary-600" />
           <p className="text-body-sm text-muted-foreground">
-            Demo build: your details stay in this browser and no account is created on
-            the server. You will be signed in with sample volunteer data so you can look
-            around.
+            Demo build: your details stay in this browser and no account is created on the
+            server. You will be signed in with a sample {kind === 'host' ? 'host' : 'volunteer'}{' '}
+            account so you can look around.
           </p>
         </div>
       )}
@@ -108,17 +162,32 @@ export default function RegisterPage() {
       )}
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-4" noValidate>
-        <div>
-          <Label htmlFor="name">Full name</Label>
-          <Input
-            id="name"
-            autoComplete="name"
-            required
-            value={form.name}
-            onChange={update('name')}
-            className="mt-1.5"
-          />
-        </div>
+        {kind === 'host' ? (
+          <div>
+            <Label htmlFor="organization">Organisation name</Label>
+            <Input
+              id="organization"
+              autoComplete="organization"
+              required
+              value={form.organization}
+              onChange={update('organization')}
+              placeholder="e.g. Mumbai Beach Warriors"
+              className="mt-1.5"
+            />
+          </div>
+        ) : (
+          <div>
+            <Label htmlFor="name">Full name</Label>
+            <Input
+              id="name"
+              autoComplete="name"
+              required
+              value={form.name}
+              onChange={update('name')}
+              className="mt-1.5"
+            />
+          </div>
+        )}
 
         <div>
           <Label htmlFor="email">Email</Label>
@@ -175,7 +244,11 @@ export default function RegisterPage() {
         </div>
 
         <Button type="submit" size="lg" className="w-full" disabled={loading}>
-          {loading ? 'Creating account…' : 'Create account'}
+          {loading
+            ? 'Creating account…'
+            : kind === 'host'
+              ? 'Create host account'
+              : 'Create account'}
         </Button>
       </form>
 

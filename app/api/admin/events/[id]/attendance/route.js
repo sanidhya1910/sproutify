@@ -1,22 +1,32 @@
 import { NextResponse } from 'next/server'
-import { verifyToken } from '@/lib/auth'
+import { getPrisma } from '@/lib/prisma'
+import { requireEventManager, forbidIfNotOwner } from '@/lib/admin-auth'
 import { markAttendance, removeAttendance, AttendanceError } from '@/lib/attendance'
 
-function requireAdmin(request) {
-  const token = request.headers.get('Authorization')?.replace('Bearer ', '')
-  if (!token) {
-    throw new AttendanceError('Unauthorized', 401)
-  }
-  const decoded = verifyToken(token)
-  if (!decoded || decoded.role !== 'ADMIN') {
-    throw new AttendanceError('Unauthorized', 401)
-  }
-  return decoded
+/**
+ * A host can only mark attendance for events they created — checked via a
+ * lightweight fetch of just `creatorId` rather than the full event record.
+ */
+async function requireOwnedEvent(request, eventId) {
+  const auth = requireEventManager(request)
+  if (auth instanceof NextResponse) throw new AttendanceError('Unauthorized', 401)
+
+  const prisma = await getPrisma()
+  const event = await prisma.event.findUnique({
+    where: { id: eventId },
+    select: { creatorId: true },
+  })
+  if (!event) throw new AttendanceError('Event not found', 404)
+
+  const forbidden = forbidIfNotOwner(auth, event)
+  if (forbidden) throw new AttendanceError('Forbidden', 403)
+
+  return auth
 }
 
 export async function POST(request, { params }) {
   try {
-    requireAdmin(request)
+    await requireOwnedEvent(request, params.id)
 
     const { userId } = await request.json()
     if (!userId) {
@@ -47,7 +57,7 @@ export async function POST(request, { params }) {
 
 export async function DELETE(request, { params }) {
   try {
-    requireAdmin(request)
+    await requireOwnedEvent(request, params.id)
 
     const { userId } = await request.json()
     if (!userId) {

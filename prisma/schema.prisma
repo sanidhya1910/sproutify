@@ -17,6 +17,9 @@ model User {
   name      String
   password  String
   role      Role     @default(VOLUNTEER)
+  // Set for ORGANIZER accounts (an NGO or community group hosting events).
+  // Null for VOLUNTEER and ADMIN — a platform admin isn't a host org.
+  organization String?
   ecoTokens Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -129,6 +132,11 @@ enum RedemptionStatus {
 enum Role {
   ADMIN
   VOLUNTEER
+  // An NGO / community group host. Can create and manage events they
+  // created; unlike ADMIN, scoped to their own events only — no access to
+  // the platform-wide volunteer directory, contact inbox, or other hosts'
+  // events.
+  ORGANIZER
 }
 enum EventType {
   CLEANUP

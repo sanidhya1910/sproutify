@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { CalendarX2, Search, Check } from 'lucide-react'
 import AuthGuard from '@/components/auth/auth-guard'
@@ -22,7 +22,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { EVENT_TYPE_LIST, resolveEventType } from '@/lib/event-types'
-import { apiGet, apiPost, apiDelete } from '@/lib/api'
+import { apiGet } from '@/lib/api'
+import { useEffectiveRegistrations } from '@/lib/use-effective-registrations'
 import { isEventPast } from '@/lib/format'
 
 /**
@@ -33,12 +34,7 @@ import { isEventPast } from '@/lib/format'
  * Errors also went through native alert(); they now use toasts.
  */
 
-interface Registration {
-  eventId: string
-}
-
 function EventsBody() {
-  const queryClient = useQueryClient()
   const [scope, setScope] = useState<'upcoming' | 'past'>('upcoming')
   const [search, setSearch] = useState('')
   const [type, setType] = useState('all')
@@ -49,43 +45,14 @@ function EventsBody() {
     queryFn: () => apiGet<EventCardEvent[]>('/api/volunteer/events'),
   })
 
-  const registrationsQuery = useQuery({
-    queryKey: ['volunteer-registrations'],
-    queryFn: () => apiGet<Registration[]>('/api/volunteer/registrations'),
-  })
-
-  const registeredIds = useMemo(
-    () => new Set((registrationsQuery.data ?? []).map((r) => r.eventId)),
-    [registrationsQuery.data]
-  )
-
-  const register = useMutation({
-    mutationFn: (eventId: string) => apiPost('/api/volunteer/register', { eventId }),
-    onSuccess: () => {
-      toast.success('You are registered for this event')
-      queryClient.invalidateQueries({ queryKey: ['volunteer-registrations'] })
-      queryClient.invalidateQueries({ queryKey: ['volunteer-events'] })
-      queryClient.invalidateQueries({ queryKey: ['volunteer-dashboard'] })
-    },
-    onError: (e: Error) => toast.error(e.message || 'Registration failed'),
-  })
-
-  const unregister = useMutation({
-    mutationFn: (eventId: string) => apiDelete('/api/volunteer/unregister', { eventId }),
-    onSuccess: () => {
-      toast.success('Registration cancelled')
-      queryClient.invalidateQueries({ queryKey: ['volunteer-registrations'] })
-      queryClient.invalidateQueries({ queryKey: ['volunteer-events'] })
-      queryClient.invalidateQueries({ queryKey: ['volunteer-dashboard'] })
-    },
-    onError: (e: Error) => toast.error(e.message || 'Could not cancel registration'),
-  })
+  // Registering/cancelling here is session-only — see lib/local-overrides.ts.
+  const { isRegistered, register, unregister } = useEffectiveRegistrations()
 
   const events = useMemo(() => {
     let list = eventsQuery.data ?? []
     list = list.filter((e) => (scope === 'past' ? isEventPast(e.date) : !isEventPast(e.date)))
     if (type !== 'all') list = list.filter((e) => resolveEventType(e).id === type)
-    if (onlyRegistered) list = list.filter((e) => registeredIds.has(e.id))
+    if (onlyRegistered) list = list.filter((e) => isRegistered(e.id))
     if (search.trim()) {
       const q = search.toLowerCase()
       list = list.filter(
@@ -93,7 +60,7 @@ function EventsBody() {
       )
     }
     return list
-  }, [eventsQuery.data, scope, type, onlyRegistered, registeredIds, search])
+  }, [eventsQuery.data, scope, type, onlyRegistered, isRegistered, search])
 
   const filtered = type !== 'all' || onlyRegistered || search.trim().length > 0
 
@@ -205,11 +172,8 @@ function EventsBody() {
             </p>
             <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
               {events.map((event) => {
-                const isRegistered = registeredIds.has(event.id)
+                const registered = isRegistered(event.id)
                 const past = isEventPast(event.date)
-                const busy =
-                  (register.isPending && register.variables === event.id) ||
-                  (unregister.isPending && unregister.variables === event.id)
 
                 return (
                   <EventCard
@@ -221,13 +185,15 @@ function EventsBody() {
                         <Button asChild variant="secondary" size="sm" className="flex-1">
                           <a href={`/volunteer/events/${event.id}`}>Details</a>
                         </Button>
-                        {past ? null : isRegistered ? (
+                        {past ? null : registered ? (
                           <Button
                             variant="ghost"
                             size="sm"
                             className="flex-1"
-                            disabled={busy}
-                            onClick={() => unregister.mutate(event.id)}
+                            onClick={() => {
+                              unregister(event.id)
+                              toast.success('Registration cancelled')
+                            }}
                           >
                             <Check strokeWidth={2} />
                             Registered
@@ -236,10 +202,12 @@ function EventsBody() {
                           <Button
                             size="sm"
                             className="flex-1"
-                            disabled={busy}
-                            onClick={() => register.mutate(event.id)}
+                            onClick={() => {
+                              register(event.id)
+                              toast.success('You are registered for this event')
+                            }}
                           >
-                            {busy ? 'Working…' : 'Register'}
+                            Register
                           </Button>
                         )}
                       </div>

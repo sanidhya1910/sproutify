@@ -14,6 +14,7 @@ import {
   Menu,
   LogOut,
   ChevronDown,
+  PlusCircle,
   type LucideIcon,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -28,6 +29,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { StatusPill } from '@/components/patterns/StatusPill'
 import { useDisplayName } from '@/lib/use-display-name'
+import { clearLocalOverrides } from '@/lib/local-overrides'
 import { cn } from '@/lib/utils'
 
 /**
@@ -66,6 +68,15 @@ const ADMIN_NAV: NavItem[] = [
   { href: '/admin/events', label: 'Events', icon: CalendarDays },
   { href: '/admin/volunteers', label: 'Volunteers', icon: Users },
   { href: '/admin/messages', label: 'Messages', icon: Mail },
+]
+
+// ORGANIZER = an NGO/community host. Scoped to their own events — no
+// platform-wide volunteer directory or contact inbox, so those are omitted
+// rather than shown and then 401ing.
+const HOST_NAV: NavItem[] = [
+  { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/admin/events', label: 'Your events', icon: CalendarDays },
+  { href: '/admin/events/create', label: 'Create event', icon: PlusCircle },
 ]
 
 interface SessionUser {
@@ -123,13 +134,24 @@ function initials(name?: string) {
     .join('')
 }
 
+const ROLE_LABEL: Record<string, string> = {
+  ADMIN: 'Admin',
+  ORGANIZER: 'Host',
+  VOLUNTEER: 'Volunteer',
+}
+
 function UserMenu({ user }: { user: SessionUser | null }) {
   const router = useRouter()
   const isAdmin = user?.role === 'ADMIN'
+  const isHost = user?.role === 'ORGANIZER'
   const displayName = useDisplayName(user?.name)
 
   const logout = () => {
     localStorage.removeItem('token')
+    // Demo-session-only event interactions (registrations made this browser
+    // session, layered on top of the seeded baseline) end with the session
+    // that created them, same as the browser-only "registered" account.
+    clearLocalOverrides()
     router.push('/')
   }
 
@@ -151,8 +173,8 @@ function UserMenu({ user }: { user: SessionUser | null }) {
             <p className="truncate text-body-sm text-muted-foreground">{user.email}</p>
           )}
           <div className="mt-2">
-            <StatusPill tone={isAdmin ? 'primary' : 'neutral'}>
-              {isAdmin ? 'Admin' : 'Volunteer'}
+            <StatusPill tone={isAdmin ? 'primary' : isHost ? 'info' : 'neutral'}>
+              {ROLE_LABEL[user?.role ?? ''] ?? 'Volunteer'}
             </StatusPill>
           </div>
         </DropdownMenuLabel>
@@ -170,7 +192,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const user = useSessionUser()
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
-  const items = user?.role === 'ADMIN' ? ADMIN_NAV : VOLUNTEER_NAV
+  const items =
+    user?.role === 'ADMIN' ? ADMIN_NAV : user?.role === 'ORGANIZER' ? HOST_NAV : VOLUNTEER_NAV
 
   useEffect(() => {
     setOpen(false)

@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/select'
 import { EVENT_TYPE_LIST } from '@/lib/event-types'
 import { apiPost, apiPatch } from '@/lib/api'
+import { useSessionRole } from '@/lib/use-session-role'
 
 /**
  * One form for both create and edit.
@@ -78,6 +79,7 @@ export function EventForm({
   cancelHref: string
 }) {
   const router = useRouter()
+  const role = useSessionRole()
   const [values, setValues] = useState<EventFormValues>(initialValues)
   const [errors, setErrors] = useState<Errors>({})
   const [submitting, setSubmitting] = useState(false)
@@ -342,17 +344,22 @@ export function EventForm({
             />
           </div>
 
-          <div className="flex items-start gap-2.5">
-            <Checkbox
-              id="isFeatured"
-              checked={values.isFeatured}
-              onCheckedChange={(v) => set('isFeatured', v === true)}
-              className="mt-0.5"
-            />
-            <Label htmlFor="isFeatured" className="font-normal leading-relaxed">
-              Feature this event on the homepage
-            </Label>
-          </div>
+          {/* Sitewide featured placement is an admin call, not self-service —
+              the API silently ignores this field for a host, so it isn't
+              shown to one rather than appearing to work and then not. */}
+          {role !== 'ORGANIZER' && (
+            <div className="flex items-start gap-2.5">
+              <Checkbox
+                id="isFeatured"
+                checked={values.isFeatured}
+                onCheckedChange={(v) => set('isFeatured', v === true)}
+                className="mt-0.5"
+              />
+              <Label htmlFor="isFeatured" className="font-normal leading-relaxed">
+                Feature this event on the homepage
+              </Label>
+            </div>
+          )}
         </CardContent>
       </Card>
 

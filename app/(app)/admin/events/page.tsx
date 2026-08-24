@@ -33,6 +33,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { apiGet, apiDelete } from '@/lib/api'
+import { useSessionRole } from '@/lib/use-session-role'
 import { resolveEventType } from '@/lib/event-types'
 import { formatEventDateShort, formatEventTime, isEventPast } from '@/lib/format'
 
@@ -93,12 +94,19 @@ function EventsBody() {
     return list
   }, [data, scope, search])
 
+  const role = useSessionRole()
+  const isHost = role === 'ORGANIZER'
+
   return (
     <>
       <PageHeader
-        eyebrow="Admin"
-        title="Events"
-        description="Create, edit and manage events across all categories."
+        eyebrow={isHost ? 'Host' : 'Admin'}
+        title={isHost ? 'Your events' : 'Events'}
+        description={
+          isHost
+            ? 'Create, edit and manage the events you host.'
+            : 'Create, edit and manage events across all categories.'
+        }
         actions={
           <Button asChild>
             <Link href="/admin/events/create">
@@ -297,7 +305,7 @@ function EventsBody() {
 
 export default function AdminEventsPage() {
   return (
-    <AuthGuard requiredRole="ADMIN">
+    <AuthGuard requiredRole={['ADMIN', 'ORGANIZER']}>
       <EventsBody />
     </AuthGuard>
   )
