@@ -11,7 +11,15 @@
   "hyperdrive": [
     {
       "binding": "HYPERDRIVE",
-      "id": "66e14d556e6f43d0ae7dbe3a0603e43d"
+      "id": "66e14d556e6f43d0ae7dbe3a0603e43d",
+      // `opennextjs-cloudflare deploy` spins up a local wrangler platform proxy
+      // to populate the remote cache, and that proxy validates every declared
+      // binding up front — including Hyperdrive — even though cache population
+      // never touches the database and the actual deploy target is remote.
+      // This placeholder only satisfies that validation; it is never connected
+      // to. The real connection lives in the Hyperdrive binding itself
+      // (id above), which is what the deployed Worker actually uses.
+      "localConnectionString": "postgresql://user:pass@localhost:5432/postgres"
     }
   ],
   "observability": {
