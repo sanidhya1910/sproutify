@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import { Leaf, type LucideIcon } from 'lucide-react'
+import { IconLeaf, type AppIcon } from '@/components/passport/icons'
 import { getAsset, type AssetId, type AssetSlot } from '@/lib/assets'
 import { cn } from '@/lib/utils'
 
@@ -25,7 +25,7 @@ interface AssetImageProps {
    */
   override?: string | null
   /** Overrides the manifest icon for `placeholder: 'icon'` slots. */
-  icon?: LucideIcon
+  icon?: AppIcon
   /** Overrides manifest alt text (e.g. per-event alt for category art). */
   alt?: string
 }
@@ -37,11 +37,11 @@ function aspectStyle(asset: AssetSlot) {
 function AssetPlaceholder({
   asset,
   className,
-  icon: Icon = Leaf,
+  icon: Icon = IconLeaf,
 }: {
   asset: AssetSlot
   className?: string
-  icon?: LucideIcon
+  icon?: AppIcon
 }) {
   const base = 'flex w-full items-center justify-center overflow-hidden'
 
@@ -74,7 +74,9 @@ function AssetPlaceholder({
         className={cn(base, 'bg-primary-50', className)}
         aria-hidden
       >
-        <span className="text-h4 tracking-tight text-primary-700">Sproutify</span>
+        <span className="font-display text-[1.05rem] leading-none text-foreground">
+          Sproutify
+        </span>
       </div>
     )
   }

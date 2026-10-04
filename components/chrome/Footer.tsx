@@ -1,6 +1,7 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import { Container } from '@/components/patterns/Container'
+import { Stamp } from '@/components/passport/Stamp'
+import { IconPassport } from '@/components/passport/icons'
 
 /**
  * Rebuilt from the old MUI footer, which used `bgcolor: '#1C1C1C'` (a value
@@ -26,65 +27,77 @@ const ENGAGE = [
 
 export default function Footer() {
   return (
-    <footer className="border-t border-border bg-primary-900 text-primary-100">
-      <Container className="py-14">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="lg:col-span-2">
-            <div className="flex items-center gap-2">
-              <Image
-                src="/logo.png"
-                alt=""
-                width={26}
-                height={26}
-                className="size-[26px] object-contain"
-              />
-              <span className="text-h4 tracking-tight text-background">Sproutify</span>
+    <footer className="relative overflow-hidden bg-primary-900 text-primary-100">
+      {/* Perforated tear-off edge */}
+      <div
+        aria-hidden
+        className="h-3 bg-[radial-gradient(circle_at_10px_0,hsl(var(--background))_6px,transparent_6.5px)] bg-[length:20px_12px] bg-repeat-x"
+      />
+      <Container className="pt-16 md:pt-20">
+        <div className="grid gap-12 lg:grid-cols-[minmax(0,1.4fr)_repeat(2,minmax(0,0.6fr))]">
+          <div className="flex items-start gap-6">
+            <div className="hidden w-[112px] shrink-0 sm:block">
+              <Stamp top="Sproutify · Mumbai" bottom="Est. 2020" icon={IconPassport} ink="paper" rotate={-8} fluid seed={21} />
             </div>
-            <p className="mt-3 max-w-sm text-body-sm text-primary-200">
-              Connecting volunteers with organised environmental action: beach cleanups,
-              tree plantations and community-led restoration.
-            </p>
+            <div>
+              <p className="max-w-sm font-display text-statement text-background">Leave it cleaner than you found it.</p>
+              <p className="mt-4 max-w-sm text-body text-primary-200">
+                Volunteer-run cleanups, plantations and e-waste drives across Mumbai.
+              </p>
+            </div>
           </div>
 
-          <div>
-            <h2 className="text-overline uppercase text-primary-300">Navigate</h2>
-            <ul className="mt-3 space-y-2">
+          <nav aria-labelledby="footer-navigate">
+            <h2 id="footer-navigate" className="font-mono text-[0.7rem] uppercase tracking-[0.16em] text-primary-300">
+              Navigate
+            </h2>
+            <ul className="mt-4 space-y-3">
               {NAVIGATE.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-body-sm text-primary-100 transition-colors hover:text-background"
+                    className="text-body font-medium text-primary-100 underline-offset-4 transition-colors hover:text-background hover:underline"
                   >
                     {link.label}
                   </Link>
                 </li>
               ))}
             </ul>
-          </div>
+          </nav>
 
-          <div>
-            <h2 className="text-overline uppercase text-primary-300">Get involved</h2>
-            <ul className="mt-3 space-y-2">
+          <nav aria-labelledby="footer-engage">
+            <h2 id="footer-engage" className="font-mono text-[0.7rem] uppercase tracking-[0.16em] text-primary-300">
+              Get involved
+            </h2>
+            <ul className="mt-4 space-y-3">
               {ENGAGE.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-body-sm text-primary-100 transition-colors hover:text-background"
+                    className="text-body font-medium text-primary-100 underline-offset-4 transition-colors hover:text-background hover:underline"
                   >
                     {link.label}
                   </Link>
                 </li>
               ))}
             </ul>
-          </div>
+          </nav>
         </div>
 
-        <div className="mt-12 border-t border-primary-800 pt-6">
-          <p className="text-caption text-primary-300">
-            © {new Date().getFullYear()} Sproutify. All rights reserved.
-          </p>
+        <div className="mt-16 flex flex-col gap-2 border-t-2 border-dashed border-primary-700 pt-6 font-mono text-[0.72rem] text-primary-300 sm:flex-row sm:items-center sm:justify-between">
+          <p>© {new Date().getFullYear()} Sproutify</p>
+          <p>19.07° N, 72.87° E</p>
         </div>
       </Container>
+
+      {/* Oversized wordmark, cropped by the bottom edge. Decorative: the
+          brand name is already announced by the navbar. */}
+      <p
+        aria-hidden
+        className="pointer-events-none mt-8 select-none whitespace-nowrap text-center font-display text-[clamp(3rem,12.6vw,12.5rem)] leading-[0.74] text-primary-800"
+      >
+        Sproutify
+      </p>
     </footer>
   )
 }

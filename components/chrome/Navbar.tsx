@@ -28,7 +28,7 @@ const LINKS = [
  * 2. It had no mobile treatment at all: the flex row simply overflowed
  *    off-screen, clipping the logo and forcing horizontal page scroll.
  *
- * The bar is now always opaque, so contrast never depends on what's behind
+ * The bar is always opaque kraft, so contrast never depends on what is behind
  * it, and the wordmark is left-aligned (centre-branding is what pushed the
  * links into it in the first place).
  */
@@ -56,28 +56,31 @@ export default function Navbar() {
   return (
     <header
       className={cn(
-        'sticky top-0 z-50 h-16 border-b bg-background/85 backdrop-blur-md transition-colors',
-        scrolled ? 'border-border shadow-sm' : 'border-transparent'
+        'sticky top-0 z-50 h-16 border-b-2 bg-background/90 backdrop-blur-xl transition-[border-color,box-shadow] duration-300',
+        scrolled ? 'border-dashed border-primary-900/15' : 'border-transparent'
       )}
     >
       <Container className="flex h-16 items-center justify-between gap-6">
         <Link href="/" className="flex shrink-0 items-center gap-2">
           <Image src="/logo.png" alt="" width={28} height={28} className="size-7 object-contain" />
-          <span className="text-h4 tracking-tight text-primary-700">Sproutify</span>
+          <span className="font-display text-[1.05rem] leading-none tracking-[0.01em] text-foreground">
+            Sproutify
+          </span>
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
           {LINKS.map((link) => {
-            const active = pathname === link.href
+            const active = pathname === link.href || pathname.startsWith(link.href + '/')
             return (
               <Link
                 key={link.href}
                 href={link.href}
+                aria-current={active ? 'page' : undefined}
                 className={cn(
-                  'rounded-md px-3 py-2 text-body transition-colors',
+                  'relative rounded-full px-3.5 py-2 text-body font-medium transition-colors',
                   active
-                    ? 'text-primary-800 font-medium'
-                    : 'text-muted-foreground hover:bg-surface-sunken hover:text-foreground'
+                    ? 'bg-foreground text-background'
+                    : 'text-muted-foreground hover:bg-surface hover:text-foreground'
                 )}
               >
                 {link.label}
@@ -86,12 +89,12 @@ export default function Navbar() {
           })}
         </nav>
 
-        <div className="hidden shrink-0 items-center gap-2 md:flex">
-          <Button asChild variant="ghost" size="sm">
+        <div className="hidden shrink-0 items-center gap-1.5 md:flex">
+          <Button asChild variant="ghost" size="sm" className="h-9 rounded-full px-4 font-semibold">
             <Link href="/login">Log in</Link>
           </Button>
-          <Button asChild size="sm">
-            <Link href="/register">Get started</Link>
+          <Button asChild size="sm" className="h-9 rounded-full bg-stamp px-4 font-semibold text-white hover:bg-stamp-ink">
+            <Link href="/register">Get your passport</Link>
           </Button>
         </div>
 
@@ -101,11 +104,11 @@ export default function Navbar() {
               <Menu strokeWidth={1.75} />
             </Button>
           </SheetTrigger>
-          <SheetContent side="right" className="w-[280px] p-0">
+          <SheetContent side="right" className="w-[280px] bg-background p-0">
             <SheetTitle className="sr-only">Menu</SheetTitle>
-            <div className="flex h-16 items-center gap-2 border-b border-border px-5">
+            <div className="flex h-16 items-center gap-2 border-b-2 border-dashed border-primary-900/15 px-5">
               <Image src="/logo.png" alt="" width={24} height={24} className="size-6 object-contain" />
-              <span className="text-h4 tracking-tight text-primary-700">Sproutify</span>
+              <span className="font-display text-[1rem] leading-none text-foreground">Sproutify</span>
             </div>
             <nav className="flex flex-col p-3">
               {LINKS.map((link) => (
@@ -113,22 +116,22 @@ export default function Navbar() {
                   key={link.href}
                   href={link.href}
                   className={cn(
-                    'rounded-md px-3 py-3 text-body-lg transition-colors',
+                    'rounded-xl px-3 py-3 text-body-lg font-medium transition-colors',
                     pathname === link.href
-                      ? 'bg-primary-50 font-medium text-primary-800'
-                      : 'text-foreground hover:bg-surface-sunken'
+                      ? 'bg-foreground text-background'
+                      : 'text-foreground hover:bg-surface'
                   )}
                 >
                   {link.label}
                 </Link>
               ))}
             </nav>
-            <div className="mt-2 flex flex-col gap-2 border-t border-border p-5">
-              <Button asChild variant="secondary" size="lg">
+            <div className="mt-2 flex flex-col gap-2 border-t-2 border-dashed border-primary-900/15 p-5">
+              <Button asChild variant="secondary" size="lg" className="rounded-full">
                 <Link href="/login">Log in</Link>
               </Button>
-              <Button asChild size="lg">
-                <Link href="/register">Get started</Link>
+              <Button asChild size="lg" className="rounded-full bg-stamp text-white hover:bg-stamp-ink">
+                <Link href="/register">Get your passport</Link>
               </Button>
             </div>
           </SheetContent>

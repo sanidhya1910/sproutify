@@ -1,4 +1,11 @@
-import { Waves, Sprout, Trash2, Recycle, Droplets, type LucideIcon } from 'lucide-react'
+import {
+  IconShore,
+  IconSapling,
+  IconBins,
+  IconChip,
+  IconDrop,
+  type AppIcon,
+} from '@/components/passport/icons'
 import type { PillTone } from '@/components/patterns/StatusPill'
 
 /**
@@ -21,7 +28,7 @@ export interface Guide {
   id: string
   title: string
   description: string
-  icon: LucideIcon
+  icon: AppIcon
   tone: PillTone
   sections: GuideSection[]
 }
@@ -31,7 +38,7 @@ export const GUIDES: Guide[] = [
     id: "beach-cleanup",
     title: "Beach Cleanup Guide",
     description: "Complete guide to organizing effective beach cleanup events",
-    icon: Waves,
+    icon: IconShore,
     tone: 'info',
     sections: [
       {
@@ -84,7 +91,7 @@ export const GUIDES: Guide[] = [
     id: "tree-plantation",
     title: "Tree Plantation Guide",
     description: "Step-by-step guide for successful tree planting initiatives",
-    icon: Sprout,
+    icon: IconSapling,
     tone: 'success',
     sections: [
       {
@@ -137,7 +144,7 @@ export const GUIDES: Guide[] = [
     id: "waste-management",
     title: "Waste Management Guide",
     description: "Comprehensive approach to sustainable waste management",
-    icon: Trash2,
+    icon: IconBins,
     tone: 'primary',
     sections: [
       {
@@ -190,7 +197,7 @@ export const GUIDES: Guide[] = [
     id: "ewaste-disposal",
     title: "E-Waste Disposal Guide",
     description: "Safe and responsible electronic waste disposal practices",
-    icon: Recycle,
+    icon: IconChip,
     tone: 'warning',
     sections: [
       {
@@ -243,7 +250,7 @@ export const GUIDES: Guide[] = [
     id: "water-conservation",
     title: "Water Conservation Guide",
     description: "Effective strategies for water conservation and management",
-    icon: Droplets,
+    icon: IconDrop,
     tone: 'info',
     sections: [
       {

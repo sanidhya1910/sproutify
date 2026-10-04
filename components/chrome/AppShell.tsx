@@ -202,7 +202,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const brand = (
     <Link href="/" className="flex items-center gap-2">
       <Image src="/logo.png" alt="" width={26} height={26} className="size-[26px] object-contain" />
-      <span className="text-h4 tracking-tight text-primary-700">Sproutify</span>
+      <span className="font-display text-[1.05rem] leading-none text-foreground">
+        Sproutify
+      </span>
     </Link>
   )
 

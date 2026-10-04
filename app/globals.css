@@ -3,29 +3,29 @@
 @tailwind utilities;
 
 /* ---------------------------------------------------------------------------
-   Sproutify design tokens — "modern civic product"
-   Warm off-white paper, green-undertoned ink, deep civic green as the single
-   brand colour, one cobalt signal accent, and semantic colours that finally
-   mean what they say (red is red, amber is amber).
+   Sproutify design tokens — "field passport"
+   Kraft-paper ground, near-black green ink, the civic green as the brand
+   colour, and stamp orange for the one thing on screen you should press.
+   Cards are lighter "paper" laid on the kraft.
 
    Everything is authored as raw HSL triplets so Tailwind can apply opacity
    modifiers (bg-primary/10). Consumed via tailwind.config.ts.
-   No dark mode: there is no theme toggle and no provider for one. The
-   variable structure leaves it as a purely additive change later.
+   Contrast (computed): ink on kraft 13.8:1 · muted 6.1:1 · subtle 4.6:1 ·
+   white on stamp 4.7:1 · stamp-ink on kraft 5.4:1.
 --------------------------------------------------------------------------- */
 
 @layer base {
   :root {
     /* Neutral base */
-    --background:        45 33% 98%;   /* #FBFAF7 warm paper, not pure white */
-    --surface:            0  0% 100%;  /* cards                              */
-    --surface-sunken:    43 26% 95%;   /* wells, table stripes               */
-    --foreground:        40 10% 13%;   /* ink                                */
-    --muted:             43 26% 95%;
-    --muted-foreground:  40  7% 45%;   /* the ONE muted-text token           */
-    --subtle-foreground: 40  8% 63%;   /* captions, placeholders             */
-    --border:            42 16% 88%;   /* hairline                           */
-    --input:             42 16% 88%;
+    --background:        41 47% 90%;   /* #F1EADA kraft                      */
+    --surface:           43 60% 96%;   /* #FBF7EF paper, laid on the kraft   */
+    --surface-sunken:    39 40% 84%;   /* #E7DBC6 wells, table stripes       */
+    --foreground:       150 16% 11%;   /* #18211C ink                        */
+    --muted:             39 40% 84%;
+    --muted-foreground:  33 14% 33%;   /* the ONE muted-text token           */
+    --subtle-foreground: 35 10% 40%;   /* captions, placeholders             */
+    --border:            38 24% 74%;   /* hairline, reads as a printed rule  */
+    --input:             38 24% 74%;
     --ring:             144 61% 20%;
 
     /* Primary — deep civic green */
@@ -40,7 +40,7 @@
     --primary-800: 144 61% 15%;
     --primary-900: 144 62% 10%;
     --primary:            144 61% 20%;
-    --primary-foreground:  45 33% 98%;
+    --primary-foreground:  43 60% 96%;
 
     /* One signal accent — civic cobalt. Max twice per screen. */
     --accent:            224 76% 48%;
@@ -58,6 +58,11 @@
     --success-foreground:      0  0% 100%;
     --success-subtle:        138 76% 95%;
 
+    /* Stamp orange */
+    --stamp:        17 82% 44%;             /* #CC4814 — fills, white text    */
+    --stamp-ink:    17 80% 36%;             /* #A53C12 — orange text on paper */
+    --stamp-subtle: 22 85% 92%;
+
     --radius: 0.625rem;                     /* 10px */
   }
 
@@ -68,6 +73,25 @@
   body {
     @apply bg-background text-foreground;
     text-rendering: optimizeLegibility;
+    /* Kraft fibre: static SVG noise, multiplied into the ground colour. */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .28 0 0 0 0 .18 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  ::selection {
+    background: hsl(var(--primary-200));
+    color: hsl(var(--primary-900));
+  }
+
+  h1, h2, h3 {
+    text-wrap: balance;
+  }
+
+  /* Data never wobbles; mono figures for codes, dates and token counts. */
+  .font-mono {
+    font-feature-settings: 'zero' 1;
+  }
+  p {
+    text-wrap: pretty;
   }
 
   /* Numbers that are data should never wobble as they change */
@@ -80,6 +104,23 @@
 
 html {
   scroll-behavior: smooth;
+}
+
+@layer utilities {
+  /* The poster voice: Archivo at its widest, black weight, uppercase. */
+  .font-display {
+    font-family: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+    font-variation-settings: 'wdth' 125;
+    font-weight: 850;
+    text-transform: uppercase;
+  }
+
+  /* Faint ruled lines, like the security print on a passport page. */
+  .guilloche {
+    background-image:
+      repeating-radial-gradient(circle at 120% -20%, transparent 0 9px, hsl(var(--primary-700) / 0.06) 9px 10px),
+      repeating-radial-gradient(circle at -20% 120%, transparent 0 13px, hsl(var(--stamp) / 0.05) 13px 14px);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

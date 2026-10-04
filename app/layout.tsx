@@ -1,13 +1,26 @@
 import './globals.css';
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Archivo, IBM_Plex_Mono } from 'next/font/google';
 import Providers from './providers';
 
-// `variable` (not the default scoped className) is what lets Tailwind and the
-// MUI bridge both reference the real font. Previously the theme asked for a
-// font literally named "Inter", which next/font never registers — so the app
-// silently fell through to Arial on most machines.
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
+// One grotesk family does all the work. Archivo's width axis runs from
+// condensed to extra-expanded, so headlines are set wide and black (the
+// stamped, poster voice) while UI text stays at normal width — same face,
+// no second display font to pair.
+const archivo = Archivo({
+  subsets: ['latin'],
+  variable: '--font-archivo',
+  display: 'swap',
+  axes: ['wdth'],
+});
+
+// Ticket and stamp metadata: dates, codes, token counts.
+const plexMono = IBM_Plex_Mono({
+  subsets: ['latin'],
+  variable: '--font-mono',
+  display: 'swap',
+  weight: ['400', '500', '600'],
+});
 
 const siteUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
 const title = 'Sproutify';
@@ -43,7 +56,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en" className={`${archivo.variable} ${plexMono.variable}`}>
       <body className="min-h-dvh bg-background font-sans text-foreground antialiased">
         <Providers>{children}</Providers>
       </body>

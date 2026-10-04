@@ -26,9 +26,19 @@ const config: Config = {
   	extend: {
   		fontFamily: {
   			sans: [
-  				'var(--font-inter)',
-                    ...defaultTheme.fontFamily.sans
-                ]
+  				'var(--font-archivo)',
+  				...defaultTheme.fontFamily.sans
+  			],
+  			// Same family as sans; `.font-display` (globals.css) widens it to
+  			// the expanded cut and sets it black + uppercase.
+  			display: [
+  				'var(--font-archivo)',
+  				...defaultTheme.fontFamily.sans
+  			],
+  			mono: [
+  				'var(--font-mono)',
+  				...defaultTheme.fontFamily.mono
+  			]
   		},
   		colors: {
   			background: 'hsl(var(--background))',
@@ -60,6 +70,13 @@ const config: Config = {
   				'900': 'hsl(var(--primary-900))',
   				DEFAULT: 'hsl(var(--primary))',
   				foreground: 'hsl(var(--primary-foreground))'
+  			},
+  			// Stamp orange: CTAs and stamp ink. White text on DEFAULT is
+  			// 4.7:1; use `stamp-ink` for orange TEXT on paper (5.4:1).
+  			stamp: {
+  				DEFAULT: 'hsl(var(--stamp))',
+  				ink: 'hsl(var(--stamp-ink))',
+  				subtle: 'hsl(var(--stamp-subtle))'
   			},
   			accent: {
   				DEFAULT: 'hsl(var(--accent))',
@@ -102,6 +119,31 @@ const config: Config = {
   			'2xl': 'calc(var(--radius) + 10px)'
   		},
   		fontSize: {
+  			// Fluid marketing scale. These are set in the display serif and
+  			// only used on public pages; app screens keep the fixed scale below.
+  			// Marketing poster scale, for the expanded uppercase display cut.
+  			// Wide letterforms need tighter leading than a serif would.
+  			'hero': [
+  				'clamp(2.5rem, 0.9rem + 4.6vw, 5.5rem)',
+  				{
+  					lineHeight: '0.9',
+  					letterSpacing: '-0.025em'
+  				}
+  			],
+  			'mega': [
+  				'clamp(2.1rem, 1rem + 3.4vw, 4.25rem)',
+  				{
+  					lineHeight: '0.95',
+  					letterSpacing: '-0.02em'
+  				}
+  			],
+  			'statement': [
+  				'clamp(1.5rem, 1.05rem + 1.5vw, 2.5rem)',
+  				{
+  					lineHeight: '1.05',
+  					letterSpacing: '-0.015em'
+  				}
+  			],
   			'display-2xl': [
   				'3.75rem',
   				{
@@ -202,10 +244,10 @@ const config: Config = {
   			]
   		},
   		boxShadow: {
-  			xs: '0 1px 2px 0 hsl(144 20% 10% / 0.04)',
-  			sm: '0 1px 3px 0 hsl(144 20% 10% / 0.06), 0 1px 2px -1px hsl(144 20% 10% / 0.04)',
-  			md: '0 4px 12px -2px hsl(144 20% 10% / 0.08), 0 2px 4px -2px hsl(144 20% 10% / 0.04)',
-  			lg: '0 12px 32px -8px hsl(144 20% 10% / 0.12)',
+  			xs: '0 1px 2px 0 hsl(150 16% 11% / 0.04)',
+  			sm: '0 1px 3px 0 hsl(150 16% 11% / 0.06), 0 1px 2px -1px hsl(150 16% 11% / 0.04)',
+  			md: '0 4px 12px -2px hsl(150 16% 11% / 0.08), 0 2px 4px -2px hsl(150 16% 11% / 0.04)',
+  			lg: '0 12px 32px -8px hsl(150 16% 11% / 0.12)',
   			overlay: '0 24px 48px -12px hsl(144 25% 8% / 0.18)',
   			focus: '0 0 0 3px hsl(var(--ring) / 0.18)'
   		},
@@ -230,6 +272,16 @@ const config: Config = {
   					height: '0'
   				}
   			},
+  			marquee: {
+  				from: { transform: 'translateX(0)' },
+  				to: { transform: 'translateX(-50%)' }
+  			},
+  			// Scanner line sweeping a viewfinder; animates `top` so the travel is
+  			// relative to the container, not the 2px line.
+  			scan: {
+  				'0%, 100%': { top: '0%' },
+  				'50%': { top: '100%' }
+  			},
   			'fade-up': {
   				from: {
   					opacity: '0',
@@ -244,7 +296,9 @@ const config: Config = {
   		animation: {
   			'accordion-down': 'accordion-down 0.2s ease-out',
   			'accordion-up': 'accordion-up 0.2s ease-out',
-  			'fade-up': 'fade-up .45s cubic-bezier(.16,1,.3,1) both'
+  			'fade-up': 'fade-up .45s cubic-bezier(.16,1,.3,1) both',
+  			marquee: 'marquee var(--marquee-duration, 40s) linear infinite',
+  			scan: 'scan 2.4s cubic-bezier(.45,0,.55,1) infinite'
   		}
   	}
   },
