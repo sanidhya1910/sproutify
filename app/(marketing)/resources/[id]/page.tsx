@@ -43,11 +43,11 @@ export default async function GuidePage({ params }: { params: Promise<{ id: stri
         All guides
       </Link>
 
-      <header className="mt-6 border-b border-border pb-8">
+      <header className="mt-8 pb-10">
         <div className="flex size-12 items-center justify-center rounded-md bg-primary-50 text-primary-700">
           <Icon size={22} strokeWidth={1.75} />
         </div>
-        <h1 className="mt-4 text-display-lg text-foreground">{guide.title}</h1>
+        <h1 className="mt-6 font-display text-mega text-primary-900">{guide.title}</h1>
         <p className="mt-3 max-w-2xl text-body-lg text-muted-foreground">
           {guide.description}
         </p>
@@ -57,43 +57,43 @@ export default async function GuidePage({ params }: { params: Promise<{ id: stri
         </div>
       </header>
 
-      <ol className="mt-10 space-y-8">
+      <ol className="border-t border-primary-900/15">
         {guide.sections.map((section, i) => (
-          <li key={section.title}>
-            <Card className="p-6 md:p-8">
-              <div className="flex items-start gap-4">
-                <span className="tnum flex size-8 shrink-0 items-center justify-center rounded-md bg-primary-50 text-body-sm font-semibold text-primary-800">
-                  {i + 1}
-                </span>
-                <div className="min-w-0 flex-1">
-                  <h2 className="text-h3 text-foreground">{section.title}</h2>
-                  <p className="mt-2 text-body text-muted-foreground">{section.content}</p>
+          <li key={section.title} className="border-b border-primary-900/15 py-10 md:py-12">
+            <div className="grid gap-4 md:grid-cols-[4rem_minmax(0,1fr)] md:gap-8">
+              <span className="font-mono text-lg font-semibold leading-none text-stamp-ink">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <div className="min-w-0 max-w-3xl">
+                <h2 className="font-display text-[2rem] leading-tight tracking-[-0.02em] text-primary-900">
+                  {section.title}
+                </h2>
+                <p className="mt-3 text-body-lg text-muted-foreground">{section.content}</p>
 
-                  <h3 className="mt-5 text-overline uppercase text-muted-foreground">
-                    Key tips
-                  </h3>
-                  <ul className="mt-2.5 space-y-2">
-                    {section.tips.map((tip) => (
-                      <li key={tip} className="flex gap-2.5 text-body-sm text-foreground">
-                        <Check
-                          size={16}
-                          strokeWidth={2}
-                          className="mt-0.5 shrink-0 text-primary-600"
-                        />
-                        <span>{tip}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                <h3 className="mt-5 text-overline uppercase text-muted-foreground">
+                  Key tips
+                </h3>
+                <ul className="mt-3 grid gap-x-8 gap-y-2.5 sm:grid-cols-2">
+                  {section.tips.map((tip) => (
+                    <li key={tip} className="flex gap-2.5 text-body-sm text-foreground">
+                      <Check
+                        size={16}
+                        strokeWidth={2}
+                        className="mt-0.5 shrink-0 text-primary-600"
+                      />
+                      <span>{tip}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
-            </Card>
+            </div>
           </li>
         ))}
       </ol>
 
-      <Card className="mt-12 flex flex-col items-center gap-4 p-8 text-center sm:flex-row sm:justify-between sm:text-left">
+      <Card className="mt-16 flex flex-col items-center gap-4 rounded-2xl bg-primary-50 p-8 text-center sm:flex-row sm:justify-between sm:text-left md:p-10">
         <div>
-          <h2 className="text-h4 text-foreground">Put this into practice</h2>
+          <h2 className="font-display text-h1 text-primary-900">Put this into practice</h2>
           <p className="mt-1 text-body-sm text-muted-foreground">
             Find an event that needs volunteers, or talk to us about organising one.
           </p>

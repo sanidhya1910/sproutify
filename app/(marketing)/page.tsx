@@ -1,284 +1,332 @@
 import Link from 'next/link'
-import { ArrowRight, Waves, Sprout, Users, Handshake } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 import { Container } from '@/components/patterns/Container'
-import { Section } from '@/components/patterns/Section'
 import { Reveal } from '@/components/patterns/Reveal'
-import { AssetImage } from '@/components/patterns/AssetImage'
 import { Button } from '@/components/ui/button'
+import { EventCard, type EventCardEvent } from '@/components/events/EventCard'
+import { CountUp, RevealText } from '@/components/marketing/Motion'
+import { CtaPanel } from '@/components/marketing/CtaPanel'
+import { TapeStrip } from '@/components/marketing/TapeStrip'
+import { UpcomingEvents } from '@/components/marketing/UpcomingEvents'
+import { PassportPage } from '@/components/passport/PassportPage'
+import { CheckinPhone } from '@/components/passport/CheckinPhone'
+import { RewardsShelf } from '@/components/passport/RewardsShelf'
+import { HostConsole } from '@/components/passport/HostConsole'
+import { Stamp, TextStamp } from '@/components/passport/Stamp'
+import {
+  IconCrew,
+  IconMegaphone,
+  IconScan,
+  IconSeal,
+  IconShore,
+  IconSapling,
+  IconTicket,
+  IconToken,
+  type AppIcon,
+} from '@/components/passport/icons'
+import { EVENT_TYPE_LIST, type EventTypeId } from '@/lib/event-types'
+import { TOKENS_PER_ATTENDANCE } from '@/lib/constants'
 
 /**
- * Rebuilt homepage.
+ * Homepage — "field passport".
  *
- * The previous hero was two 50vw background panels hard-seamed down the
- * middle (a forest canopy butted against an orange vintage van) with the
- * headline rendered through a gradient text-clip that made it near-black on
- * a dark photo. The four narrative sections hotlinked Pexels stock, one of
- * which was a salon photo of hair curlers illustrating "Passion Without a
- * Plan is Not Enough".
- *
- * Layout rhythm is deliberate. The page previously ran four consecutive
- * image-left/image-right zigzag blocks, then two back-to-back four-up card
- * grids, which read as one templated pattern repeated eight times. It now
- * moves through four distinct layout families: split hero, two zigzag
- * blocks, a two-up media grid, a hairline-divided figure band, and a
- * connected process rail.
- *
- * The impact figures below were previously presented as achieved results
- * ("50,000 lbs debris removed", "120,000+ trees planted"). They were
- * hardcoded and the database has no such history, so they are framed
- * explicitly as targets.
+ * The page sells the product by showing it: the passport a volunteer fills,
+ * the ticket they pick, the phone they scan in with, the shop they spend in,
+ * and the screen a host watches on the day. Every number is either real app
+ * behaviour (20 tokens per check-in, the seeded reward prices, the demo
+ * accounts) or explicitly labelled as a target or sample.
  */
 
-// First two run as full-width zigzag blocks; the second pair collapses into
-// a two-up media grid so the alternation never runs more than twice.
-const NARRATIVE_LEAD = [
-  {
-    key: 'problem',
-    eyebrow: 'The problem',
-    title: 'Our coasts and forests are under pressure.',
-    body: 'Plastic waste accumulates faster than it can be cleared, and habitat loss compounds every year. These are large, distributed problems that need coordinated, repeated effort rather than one-off gestures.',
-    slot: 'home.narrative.1',
-  },
-  {
-    key: 'challenge',
-    eyebrow: null,
-    title: 'Willingness is not the bottleneck.',
-    body: 'Plenty of people want to help. What is missing is the logistics: knowing where to go, what is needed, and whether the effort actually adds up to anything measurable.',
-    slot: 'home.narrative.2',
-  },
-] as const
+const SAMPLE_EVENT: EventCardEvent = {
+  id: 'sample-juhu',
+  title: 'Juhu Beach Cleanup',
+  location: 'Juhu Beach, Mumbai',
+  date: '2026-10-17',
+  startTime: '07:00',
+  endTime: '09:30',
+  type: 'CLEANUP',
+  imageUrl: '/events/juhu-beach-cleanup.webp',
+  expectedVolunteers: 40,
+  _count: { registrations: 27 },
+}
 
-const NARRATIVE_PAIR = [
-  {
-    key: 'opportunity',
-    title: 'Coordinated effort compounds.',
-    body: 'A structured platform turns scattered goodwill into scheduled, well-briefed work with the right equipment and enough hands to finish what it starts.',
-    slot: 'home.narrative.3',
-  },
-  {
-    key: 'approach',
-    title: 'Organised action, recorded honestly.',
-    body: 'We handle partners, permits, safety briefings and supplies, so volunteers can turn up and work. Attendance is verified on site, so the numbers we report are the ones that actually happened.',
-    slot: 'home.narrative.4',
-  },
-] as const
+const WHAT_YOU_DO: Record<EventTypeId, string> = {
+  CLEANUP: 'Shoreline sweeps timed to low tide. Gloves, sacks and grabbers are supplied.',
+  PLANTATION: 'Native saplings into prepared ground, with a plan for who waters them after.',
+  EWASTE: 'Collection drives for old phones, cables and batteries, passed on for proper recycling.',
+  RESTORATION: 'Mangrove and wetland work alongside partners who know the site.',
+  COMMUNITY: 'Neighbourhood gardens, workshops and drives run with resident groups.',
+  OTHER: 'Anything else a local partner needs a few more hands for.',
+}
 
-const GOALS = [
-  { icon: Waves, value: '50,000', unit: 'lbs', label: 'Debris removed from coasts' },
-  { icon: Sprout, value: '120,000', unit: null, label: 'Trees planted' },
-  { icon: Users, value: '15,000', unit: null, label: 'Active volunteers' },
-  { icon: Handshake, value: '200', unit: null, label: 'Community partners' },
-] as const
+const TARGETS: { value: number; unit?: string; label: string; icon: AppIcon }[] = [
+  { value: 50000, unit: 'lbs', label: 'of debris off Mumbai’s shoreline', icon: IconShore },
+  { value: 120000, label: 'native trees in the ground', icon: IconSapling },
+  { value: 15000, label: 'volunteers who come back', icon: IconCrew },
+  { value: 200, label: 'local partner organisations', icon: IconMegaphone },
+]
 
-const PROCESS = [
-  {
-    title: 'Identify and plan',
-    body: 'We work with local partners to find sites that genuinely need attention, then scope what it takes to do the job properly.',
-  },
-  {
-    title: 'Mobilise volunteers',
-    body: 'Events are published here with the detail people actually need: what to bring, what to expect, and how long it runs.',
-  },
-  {
-    title: 'Execute and restore',
-    body: 'Every event runs with a safety briefing, supplied equipment and an on-site coordinator.',
-  },
-  {
-    title: 'Measure and repeat',
-    body: 'Attendance is confirmed on the day, so impact is recorded from what happened rather than estimated.',
-  },
-] as const
+function StepTile({
+  n,
+  title,
+  body,
+  icon: Icon,
+  children,
+  className,
+}: {
+  n: string
+  title: string
+  body: string
+  icon: AppIcon
+  children: React.ReactNode
+  className?: string
+}) {
+  return (
+    <Reveal
+      className={`flex flex-col overflow-hidden rounded-[24px] border border-primary-900/12 bg-surface ${className ?? ''}`}
+    >
+      <div className="flex items-start gap-4 p-6 md:p-8">
+        <span className="flex size-12 shrink-0 items-center justify-center rounded-full border-2 border-dashed border-stamp/60 font-mono text-sm font-semibold text-stamp-ink">
+          {n}
+        </span>
+        <div>
+          <h3 className="flex items-center gap-2 text-h3 font-bold tracking-[-0.01em]">
+            <Icon size={22} className="text-primary-600" />
+            {title}
+          </h3>
+          <p className="mt-1.5 max-w-md text-body text-muted-foreground">{body}</p>
+        </div>
+      </div>
+      <div className="relative flex flex-1 items-end justify-center overflow-hidden bg-surface-sunken px-6 pt-8 [--ticket-bg:hsl(var(--surface-sunken))]">
+        {children}
+      </div>
+    </Reveal>
+  )
+}
 
 export default function HomePage() {
   return (
     <>
-      {/* Hero. The scrim is a directional gradient, not a flat wash: a uniform
-          bg-primary-900/70 over the whole frame flattened a golden-hour
-          photograph into a single olive tone. */}
-      <section className="relative isolate overflow-hidden bg-primary-900">
-        <div className="absolute inset-0 -z-10">
-          <AssetImage
-            slot="home.hero"
-            className="h-full w-full object-cover"
-            sizes="100vw"
-            alt=""
-          />
-          {/* Base darkening keeps the whole frame readable; the directional
-              gradient on top concentrates it behind the copy so the right
-              half of the photograph still reads as a photograph. */}
-          <div className="absolute inset-0 bg-primary-900/45" />
-          <div className="absolute inset-0 bg-gradient-to-r from-primary-900/85 via-primary-900/60 to-transparent" />
-        </div>
-
-        <Container className="flex min-h-[max(560px,72dvh)] flex-col justify-center py-20 md:py-24">
-          <div className="max-w-3xl">
-            <h1 className="text-display-lg text-background md:text-display-xl">
-              Bridging the gap between community and conservation.
+      {/* ── Hero: the passport ───────────────────────────────────────── */}
+      <section className="relative overflow-hidden">
+        <Container className="grid items-center gap-14 pb-10 pt-10 md:pt-14 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-10 lg:pb-16">
+          <div>
+            <h1 className="font-display text-hero text-foreground">
+              <RevealText text="Show up." className="block" />
+              <RevealText text="Get stamped." startDelay={0.15} className="block text-stamp" />
+              <RevealText text="Clean up" startDelay={0.3} className="block" />
+              <RevealText text="Mumbai." startDelay={0.45} className="block" />
             </h1>
-            <p className="mt-5 max-w-xl text-body-lg text-primary-100">
-              Organised environmental work near you: cleanups, plantations and habitat
-              restoration, with every hour on site verified.
+            <p className="mt-7 max-w-xl animate-fade-up text-body-lg text-muted-foreground [animation-delay:500ms]">
+              Sproutify lists beach cleanups, tree plantings and e-waste drives across the
+              city. Scan in when you arrive, collect a stamp for every event, and trade
+              your EcoTokens for gear.
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Button asChild size="lg">
+            <div className="mt-9 flex animate-fade-up flex-wrap items-center gap-3 [animation-delay:650ms]">
+              <Button asChild size="lg" className="h-[3.25rem] rounded-full bg-stamp px-7 text-white hover:bg-stamp-ink">
                 <Link href="/events">
                   Find an event
-                  <ArrowRight strokeWidth={1.75} />
+                  <ArrowRight strokeWidth={2.25} />
                 </Link>
               </Button>
-              <Button
-                asChild
-                size="lg"
-                variant="secondary"
-                className="border-background/25 bg-background/10 text-background backdrop-blur-sm hover:bg-background/20"
-              >
-                <Link href="/about">How it works</Link>
+              <Button asChild size="lg" variant="ghost" className="h-[3.25rem] rounded-full px-5 font-semibold">
+                <Link href="#how-it-works">How it works</Link>
               </Button>
             </div>
+            <ul className="mt-10 flex animate-fade-up flex-wrap gap-x-6 gap-y-3 [animation-delay:800ms]">
+              {[
+                { icon: IconToken, text: `${TOKENS_PER_ATTENDANCE} tokens per check-in` },
+                { icon: IconScan, text: 'QR-verified hours' },
+                { icon: IconTicket, text: 'Free to join' },
+              ].map((f) => (
+                <li key={f.text} className="flex items-center gap-2 font-mono text-[0.78rem] text-muted-foreground">
+                  <f.icon size={20} className="text-primary-600" />
+                  {f.text}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="px-4 pb-6 pt-8 sm:px-10 lg:px-4">
+            <PassportPage />
           </div>
         </Container>
       </section>
 
-      {/* Narrative: two zigzag blocks, then the pattern breaks. */}
-      <Section>
-        <div className="space-y-20 md:space-y-28">
-          {NARRATIVE_LEAD.map((item, i) => (
-            <Reveal key={item.key}>
-              <div
-                className={`grid items-center gap-8 md:grid-cols-2 md:gap-14 ${
-                  i % 2 === 1 ? 'md:[&>*:first-child]:order-2' : ''
-                }`}
-              >
-                <div className="overflow-hidden rounded-lg border border-border">
-                  <AssetImage
-                    slot={item.slot}
-                    className="aspect-[1.25] object-cover"
-                    sizes="(min-width: 768px) 560px, 100vw"
-                  />
-                </div>
-                <div>
-                  {item.eyebrow && (
-                    <p className="text-overline uppercase text-primary-600">{item.eyebrow}</p>
-                  )}
-                  <h2 className="mt-3 text-display-lg text-foreground">{item.title}</h2>
-                  <p className="mt-4 text-body-lg text-muted-foreground">{item.body}</p>
-                </div>
-              </div>
-            </Reveal>
-          ))}
-        </div>
+      <TapeStrip />
 
-        {/* Two-up media grid. Same content family as above, different
-            composition, so the zigzag never runs a third time. */}
-        <div className="mt-20 grid gap-8 md:mt-28 md:grid-cols-2 md:gap-10">
-          {NARRATIVE_PAIR.map((item) => (
-            <Reveal key={item.key}>
-              <article className="flex h-full flex-col">
-                <div className="overflow-hidden rounded-lg border border-border">
-                  <AssetImage
-                    slot={item.slot}
-                    className="aspect-[1.6] object-cover"
-                    sizes="(min-width: 768px) 560px, 100vw"
-                  />
-                </div>
-                <h2 className="mt-6 text-h2 text-foreground">{item.title}</h2>
-                <p className="mt-3 text-body text-muted-foreground">{item.body}</p>
-              </article>
-            </Reveal>
-          ))}
-        </div>
-      </Section>
-
-      {/* Goals. Previously four identical bordered cards, which read as the
-          same grid as the process section directly below it. Now a figure
-          band separated by hairlines: no card chrome, numbers carry it. */}
-      <Section tone="sunken">
-        <div className="grid gap-10 lg:grid-cols-[minmax(0,22rem)_1fr] lg:gap-16">
-          <div>
-            <p className="text-overline uppercase text-primary-600">Where we are heading</p>
-            <h2 className="mt-3 text-display-lg text-foreground">Our 2030 targets</h2>
-            <p className="mt-4 text-body text-muted-foreground">
-              These are the goals we are working towards, not results already achieved.
-              Verified impact is recorded per event and published here as it adds up.
+      {/* ── How it works, as the product ─────────────────────────────── */}
+      <section id="how-it-works" className="scroll-mt-20 py-section md:py-section-lg">
+        <Container>
+          <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+            <h2 className="max-w-3xl font-display text-mega">From sign-up to stamp, in four stops</h2>
+            <p className="max-w-sm text-body text-muted-foreground">
+              Registration, check-in and rewards all happen on your phone, and hosts
+              see the same record you do.
             </p>
           </div>
 
-          <dl className="grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-2">
-            {GOALS.map((goal) => (
-              <div key={goal.label} className="bg-surface p-6">
-                <goal.icon
-                  className="text-primary-400"
-                  size={20}
-                  strokeWidth={1.75}
-                  aria-hidden
-                />
-                <dd className="stat-value mt-4 flex items-baseline gap-1.5 text-display-lg text-primary-800">
-                  {goal.value}
-                  {goal.unit && (
-                    <span className="text-h4 font-medium text-primary-600">{goal.unit}</span>
-                  )}
-                </dd>
-                <dt className="mt-1 text-body-sm text-muted-foreground">{goal.label}</dt>
+          <div className="mt-12 grid gap-5 lg:grid-cols-12">
+            <StepTile
+              n="01"
+              icon={IconTicket}
+              title="Pick a morning"
+              body="Every event lists where to meet, how long it runs, and how many hands it still needs."
+              className="lg:col-span-7"
+            >
+              <div className="w-full max-w-[340px] rotate-[-2deg] pb-10">
+                <EventCard event={SAMPLE_EVENT} />
+              </div>
+            </StepTile>
+
+            <StepTile
+              n="02"
+              icon={IconScan}
+              title="Scan in on site"
+              body="The host puts a QR code at the meeting point. One scan and your hours are on record."
+              className="lg:col-span-5"
+            >
+              <CheckinPhone className="w-full max-w-[230px] pb-8" />
+            </StepTile>
+
+            <StepTile
+              n="03"
+              icon={IconSeal}
+              title="Collect the stamp"
+              body="Each event you finish is stamped into your passport, so your record builds visit by visit."
+              className="lg:col-span-5"
+            >
+              <div className="relative flex h-[250px] w-full max-w-[360px] items-center justify-center">
+                <div className="absolute left-0 top-4 w-[150px]">
+                  <Stamp top="Juhu Beach" bottom="17 Oct 2026" icon={IconShore} ink="blue" rotate={-12} seed={2} fluid animate />
+                </div>
+                <div className="absolute right-2 top-0 w-[140px]">
+                  <Stamp top="Aarey Colony" bottom="Plantation" icon={IconSapling} ink="green" rotate={9} seed={5} fluid animate delay={0.35} />
+                </div>
+                <div className="absolute bottom-8 left-1/2 -translate-x-1/2">
+                  <TextStamp text="Verified" sub="QR check-in" ink="orange" rotate={-5} animate delay={0.7} />
+                </div>
+              </div>
+            </StepTile>
+
+            <StepTile
+              n="04"
+              icon={IconToken}
+              title="Spend your tokens"
+              body={`${TOKENS_PER_ATTENDANCE} EcoTokens per check-in, traded in the shop for gear that keeps you coming back.`}
+              className="lg:col-span-7"
+            >
+              <div className="w-full max-w-[480px] pb-8">
+                <RewardsShelf compact />
+              </div>
+            </StepTile>
+          </div>
+        </Container>
+      </section>
+
+      {/* ── The work, as a page of stamps ────────────────────────────── */}
+      <section className="border-y-2 border-dashed border-primary-900/15 bg-surface/60 py-section md:py-section-lg">
+        <Container>
+          <h2 className="max-w-3xl font-display text-mega">Six kinds of fieldwork</h2>
+          <ul className="mt-14 grid gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
+            {EVENT_TYPE_LIST.map((t, i) => (
+              <li key={t.id} className="group flex items-start gap-5">
+                <div className="w-[104px] shrink-0 transition-transform duration-500 group-hover:-rotate-6 group-hover:scale-105">
+                  <Stamp
+                    top={t.plural}
+                    bottom="Sproutify"
+                    icon={t.icon}
+                    ink={t.ink}
+                    rotate={(i % 2 ? 1 : -1) * (5 + i)}
+                    seed={i * 3 + 1}
+                    fluid
+                    animate
+                    delay={i * 0.12}
+                  />
+                </div>
+                <div className="pt-2">
+                  <h3 className="text-h3 font-bold tracking-[-0.01em]">{t.plural}</h3>
+                  <p className="mt-1.5 text-body text-muted-foreground">{WHAT_YOU_DO[t.id]}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </Container>
+      </section>
+
+      {/* ── Hosts ─────────────────────────────────────────────────────── */}
+      <section className="py-section md:py-section-lg">
+        <Container>
+          <div className="grid items-center gap-12 overflow-hidden rounded-[28px] bg-primary-900 p-6 text-background sm:p-10 lg:grid-cols-2 lg:gap-16 lg:p-14">
+            <div>
+              <p className="inline-flex items-center gap-2 rounded-full bg-background/10 px-3 py-1.5 font-mono text-[0.7rem] uppercase tracking-[0.16em] text-primary-100">
+                <IconMegaphone size={16} />
+                For hosts
+              </p>
+              <h2 className="mt-6 font-display text-mega">Running a cleanup? Host it here.</h2>
+              <p className="mt-5 max-w-lg text-body-lg text-primary-100">
+                NGOs, colleges and resident groups publish their own events, print a QR
+                for the meeting point, and see who actually turned up.
+              </p>
+              <ul className="mt-8 space-y-4">
+                {[
+                  { icon: IconTicket, text: 'Publish an event with the details volunteers need' },
+                  { icon: IconScan, text: 'Print a check-in QR for the meeting point' },
+                  { icon: IconCrew, text: 'Watch arrivals land in real time on the day' },
+                ].map((f) => (
+                  <li key={f.text} className="flex items-center gap-3 text-body">
+                    <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-background/10 text-stamp-subtle">
+                      <f.icon size={22} />
+                    </span>
+                    {f.text}
+                  </li>
+                ))}
+              </ul>
+              <Button asChild size="lg" className="mt-10 h-12 rounded-full bg-stamp px-6 text-white hover:bg-stamp-ink">
+                <Link href="/contact">
+                  Become a host
+                  <ArrowRight strokeWidth={2.25} />
+                </Link>
+              </Button>
+            </div>
+            <HostConsole />
+          </div>
+        </Container>
+      </section>
+
+      {/* ── Live events (renders nothing if the API is unavailable) ───── */}
+      <UpcomingEvents />
+
+      {/* ── Targets ───────────────────────────────────────────────────── */}
+      <section className="pb-section md:pb-section-lg">
+        <Container>
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+            <h2 className="font-display text-mega">Where we’re headed by 2030</h2>
+            <TextStamp text="Targets" sub="not results yet" ink="green" rotate={-4} />
+          </div>
+          <dl className="mt-10 grid gap-px overflow-hidden rounded-[24px] border border-primary-900/12 bg-primary-900/12 sm:grid-cols-2 lg:grid-cols-4">
+            {TARGETS.map((t) => (
+              <div key={t.label} className="flex flex-col gap-6 bg-surface p-6 md:p-8">
+                <t.icon size={34} className="text-primary-600" />
+                <div>
+                  <dd className="flex items-baseline gap-1.5 font-display text-[clamp(1.9rem,1.1rem+1.5vw,2.5rem)] leading-none text-foreground">
+                    <CountUp value={t.value} />
+                    {t.unit && <span className="font-mono text-base font-semibold normal-case text-muted-foreground">{t.unit}</span>}
+                  </dd>
+                  <dt className="mt-2 text-body text-muted-foreground">{t.label}</dt>
+                </div>
               </div>
             ))}
           </dl>
-        </div>
-      </Section>
+        </Container>
+      </section>
 
-      {/* Process. The "01 02 03 04" display numerals were the loudest thing on
-          the page and duplicated the goals grid one section earlier. Now a
-          connected rail: the marker is structural, the step title leads. */}
-      <Section>
-        <div className="max-w-2xl">
-          <h2 className="text-display-lg text-foreground">From site to measured outcome</h2>
-        </div>
-
-        <ol className="mt-12 grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
-          {PROCESS.map((item, i) => (
-            <li key={item.title} className="relative">
-              {/* The rail bridges the grid gap (lg:gap-6 = 1.5rem), so it has
-                  to run wider than the cell it starts in. */}
-              {i < PROCESS.length - 1 && (
-                <span
-                  className="absolute left-2.5 top-[5px] hidden h-px w-[calc(100%+1.5rem)] bg-border lg:block"
-                  aria-hidden
-                />
-              )}
-              <span className="relative z-10 flex size-2.5 rounded-full bg-primary ring-4 ring-background" />
-              <h3 className="mt-5 text-h4 text-foreground">{item.title}</h3>
-              <p className="mt-2 text-body-sm text-muted-foreground">{item.body}</p>
-            </li>
-          ))}
-        </ol>
-      </Section>
-
-      {/* CTA */}
-      <Section tone="brand">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-display-lg text-background">Ready to put in a morning?</h2>
-          <p className="mt-4 text-body-lg text-primary-200">
-            Browse what is scheduled near you, or get in touch about hosting an event with
-            your organisation.
-          </p>
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Button
-              asChild
-              size="lg"
-              className="bg-background text-primary-900 hover:bg-primary-50"
-            >
-              <Link href="/register">Become a volunteer</Link>
-            </Button>
-            <Button
-              asChild
-              size="lg"
-              variant="secondary"
-              className="border-background/25 bg-transparent text-background hover:bg-background/10"
-            >
-              <Link href="/contact">Partner with us</Link>
-            </Button>
-          </div>
-        </div>
-      </Section>
+      <CtaPanel
+        title={['Your passport', 'is still blank.']}
+        body="Pick an event near you, turn up, and get your first stamp. It is free, and you only need a phone."
+        primary={{ href: '/register', label: 'Get your passport' }}
+        secondary={{ href: '/events', label: 'Browse events' }}
+      />
     </>
   )
 }

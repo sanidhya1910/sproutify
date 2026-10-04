@@ -89,18 +89,18 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
         All events
       </Link>
 
-      <div className="mt-6 overflow-hidden rounded-lg border border-border">
+      <div className="mt-6 overflow-hidden rounded-[24px]">
         <AssetImage
           slot={type.artSlot as AssetId}
           icon={Icon}
           alt=""
           override={data.imageUrl}
-          className="h-[240px] object-cover md:h-[340px]"
+          className="h-[260px] object-cover md:h-[420px]"
           sizes="(min-width: 1200px) 1136px, 100vw"
         />
       </div>
 
-      <div className="mt-8 grid gap-10 lg:grid-cols-3">
+      <div className="mt-10 grid gap-12 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <div className="flex flex-wrap items-center gap-2">
             <StatusPill tone={type.tone}>
@@ -110,19 +110,19 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
             {past && <StatusPill tone="neutral">Past event</StatusPill>}
           </div>
 
-          <h1 className="mt-3 text-display-lg text-foreground">{data.title}</h1>
+          <h1 className="mt-4 font-display text-mega text-primary-900">{data.title}</h1>
 
           {data.description && (
-            <div className="mt-6">
-              <h2 className="text-h3 text-foreground">About this event</h2>
-              <p className="mt-2 whitespace-pre-line text-body-lg text-muted-foreground">
+            <div className="mt-10 border-t border-border pt-8">
+              <h2 className="text-overline uppercase text-primary-600">About this event</h2>
+              <p className="mt-4 max-w-[65ch] whitespace-pre-line text-body-lg text-muted-foreground">
                 {data.description}
               </p>
             </div>
           )}
 
           {data.safetyInstructions && (
-            <Card className="mt-8 border-warning/30 bg-warning-subtle p-5">
+            <Card className="mt-10 rounded-2xl border-warning/30 bg-warning-subtle p-6">
               <div className="flex gap-3">
                 <ShieldAlert
                   size={18}
@@ -141,8 +141,8 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
         </div>
 
         <aside className="lg:col-span-1">
-          <Card className="p-5">
-            <h2 className="text-h4 text-foreground">Details</h2>
+          <Card className="rounded-2xl p-6 shadow-lg lg:sticky lg:top-24">
+            <h2 className="text-overline uppercase text-primary-600">Details</h2>
             <dl className="mt-4 space-y-4 text-body-sm">
               <div className="flex gap-3">
                 <CalendarDays
@@ -199,7 +199,7 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
 
             {!past && (
               <div className="mt-6 border-t border-border pt-5">
-                <Button asChild className="w-full">
+                <Button asChild size="lg" className="h-12 w-full rounded-full">
                   <Link href={`/login?redirect=/volunteer/events/${data.id}`}>
                     Sign in to register
                   </Link>

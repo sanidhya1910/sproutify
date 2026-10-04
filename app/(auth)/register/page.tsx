@@ -101,8 +101,10 @@ export default function RegisterPage() {
   }
 
   return (
-    <Card className="w-full max-w-md p-6 md:p-8">
-      <h1 className="text-h1 text-foreground">Create your account</h1>
+    <Card className="w-full max-w-md border-0 bg-transparent p-0 shadow-none">
+      <h1 className="font-display text-[2.1rem] leading-[0.95] text-foreground">
+        Create your account
+      </h1>
       <p className="mt-1.5 text-body text-muted-foreground">
         {kind === 'host'
           ? 'Host events with your organisation and manage your own volunteers.'
@@ -243,7 +245,7 @@ export default function RegisterPage() {
           />
         </div>
 
-        <Button type="submit" size="lg" className="w-full" disabled={loading}>
+        <Button type="submit" size="lg" className="h-12 w-full rounded-full bg-stamp font-semibold text-white hover:bg-stamp-ink" disabled={loading}>
           {loading
             ? 'Creating account…'
             : kind === 'host'

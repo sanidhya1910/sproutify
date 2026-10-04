@@ -1,12 +1,13 @@
 import {
-  Waves,
-  Sprout,
-  Recycle,
-  Trees,
-  Users,
-  Leaf,
-  type LucideIcon,
-} from 'lucide-react'
+  IconShore,
+  IconSapling,
+  IconChip,
+  IconMangrove,
+  IconHands,
+  IconLeaf,
+  type AppIcon,
+} from '@/components/passport/icons'
+import type { StampInk } from '@/components/passport/Stamp'
 
 /**
  * Single source of truth for event categories.
@@ -35,8 +36,10 @@ export interface EventTypeMeta {
   id: EventTypeId
   label: string
   plural: string
-  icon: LucideIcon
+  icon: AppIcon
   tone: EventTone
+  /** Ink colour of this category's passport stamp. */
+  ink: StampInk
   /** Asset manifest slot id for this category's artwork (Phase 5). */
   artSlot: string
 }
@@ -46,7 +49,8 @@ export const EVENT_TYPES: Record<EventTypeId, EventTypeMeta> = {
     id: 'CLEANUP',
     label: 'Beach cleanup',
     plural: 'Beach cleanups',
-    icon: Waves,
+    icon: IconShore,
+    ink: 'blue',
     tone: 'info',
     artSlot: 'event.type.cleanup',
   },
@@ -54,7 +58,8 @@ export const EVENT_TYPES: Record<EventTypeId, EventTypeMeta> = {
     id: 'PLANTATION',
     label: 'Tree plantation',
     plural: 'Tree plantations',
-    icon: Sprout,
+    icon: IconSapling,
+    ink: 'green',
     tone: 'success',
     artSlot: 'event.type.plantation',
   },
@@ -62,7 +67,8 @@ export const EVENT_TYPES: Record<EventTypeId, EventTypeMeta> = {
     id: 'EWASTE',
     label: 'E-waste drive',
     plural: 'E-waste drives',
-    icon: Recycle,
+    icon: IconChip,
+    ink: 'orange',
     tone: 'warning',
     artSlot: 'event.type.ewaste',
   },
@@ -70,7 +76,8 @@ export const EVENT_TYPES: Record<EventTypeId, EventTypeMeta> = {
     id: 'RESTORATION',
     label: 'Habitat restoration',
     plural: 'Habitat restoration',
-    icon: Trees,
+    icon: IconMangrove,
+    ink: 'green',
     tone: 'primary',
     artSlot: 'event.type.restoration',
   },
@@ -78,7 +85,8 @@ export const EVENT_TYPES: Record<EventTypeId, EventTypeMeta> = {
     id: 'COMMUNITY',
     label: 'Community action',
     plural: 'Community actions',
-    icon: Users,
+    icon: IconHands,
+    ink: 'orange',
     tone: 'primary',
     artSlot: 'event.type.community',
   },
@@ -86,7 +94,8 @@ export const EVENT_TYPES: Record<EventTypeId, EventTypeMeta> = {
     id: 'OTHER',
     label: 'Environmental event',
     plural: 'Environmental events',
-    icon: Leaf,
+    icon: IconLeaf,
+    ink: 'ink',
     tone: 'neutral',
     artSlot: 'event.type.other',
   },

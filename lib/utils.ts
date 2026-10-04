@@ -20,6 +20,9 @@ import { extendTailwindMerge } from 'tailwind-merge';
  * Keys must stay in sync with `theme.extend.fontSize` in tailwind.config.ts.
  */
 const FONT_SIZES = [
+  'hero',
+  'mega',
+  'statement',
   'display-2xl',
   'display-xl',
   'display-lg',
