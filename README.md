@@ -1,233 +1,142 @@
-# Sproutify 🌱
+# Sproutify
 
-A comprehensive environmental activism platform that empowers activists to host environmental activities and volunteers to join the cause. Built with Next.js, Prisma, and PostgreSQL, Sproutify connects environmental activists with passionate volunteers to create meaningful environmental impact.
+Sproutify is a platform for organising and joining environmental volunteering events. Hosts publish events (beach cleanups, tree plantations, e-waste drives and more), volunteers register and check in with a QR code, and attendance earns EcoTokens that can be redeemed for eco-friendly rewards.
 
-![Sproutify](https://images.pexels.com/photos/2547565/pexels-photo-2547565.jpeg?auto=compress&cs=tinysrgb&w=1200&h=400&fit=crop)
+Live site: https://sproutify.blackburn1910.workers.dev
 
-## � About Sproutify
+## Features
 
-Sproutify is more than just an event management platform—it's a movement towards environmental sustainability. We provide a comprehensive ecosystem where environmental activists can organize impactful activities while volunteers can easily discover and participate in causes they care about.
+### Volunteers
+- Browse and filter upcoming events by category, location and date
+- Register for events and track them under "My events"
+- Check in on the day by scanning the event's QR code
+- Earn EcoTokens for attendance and spend them in the redeem shop
+- Personal dashboard with registrations, attendance history and token balance
 
-## ✨ Key Features
+### Hosts (NGOs and community groups)
+- Create, edit and delete events, including safety instructions and an optional image
+- Generate a QR code per event for check-in
+- See registrations and attendance for their own events only
 
-### For Environmental Activists (Admin Portal)
-- **🎯 Event Management**: Create, update, and manage diverse environmental activities including beach cleanups, tree plantations, river restoration, community gardening, and more
-- **👥 Volunteer Management**: Comprehensive volunteer tracking with registration management, attendance monitoring, and performance analytics
-- **📱 QR Code Technology**: Generate unique QR codes for seamless event check-ins and attendance verification
-- **📊 Impact Analytics**: Real-time dashboard with environmental impact metrics, volunteer statistics, and event performance data
-- **🏆 Achievement System**: Track volunteer achievements and recognize active community members
+### Admins
+- Platform-wide dashboard: events, volunteers, check-ins and monthly deltas
+- Manage every event, view the volunteer directory and read the contact inbox
+- Mark events as featured on the homepage
 
-### For Environmental Volunteers (Volunteer Portal)
-- **🔍 Event Discovery**: Browse and filter upcoming environmental activities by location, date, type, and cause
-- **⚡ Quick Registration**: Streamlined registration process for environmental events
-- **📋 Personal Dashboard**: Comprehensive overview of registered events, attendance history, and personal environmental impact
-- **📱 Mobile-Friendly Check-in**: QR code scanning for easy event attendance confirmation
-- **🪙 EcoTokens Rewards**: Earn EcoTokens for participation and redeem them for eco-friendly rewards
-- **📈 Impact Tracking**: Monitor your personal contribution to environmental causes
-- **🎯 Achievement Badges**: Earn recognition badges for consistent participation and environmental advocacy
+### Event categories
+Cleanup, Plantation, E-waste, Restoration, Community and Other. Each category has its own artwork and colour.
 
-## 🌱 Environmental Activities Supported
+## Roles
 
-Sproutify supports a wide range of environmental activities, providing comprehensive guides and management tools for:
+| Role | Can do |
+|---|---|
+| `VOLUNTEER` | Browse, register, check in, redeem rewards |
+| `ORGANIZER` (host) | Everything above, plus manage events they created |
+| `ADMIN` | Manage all events, volunteers and messages |
 
-- **🏖️ Beach Cleanups**: Coastal conservation and marine debris removal
-- **🌳 Tree Plantation**: Reforestation and urban greening initiatives  
-- **🌊 River Restoration**: Waterway cleanup and ecosystem restoration
-- **🌿 Community Gardening**: Sustainable urban agriculture and food security
-- **♻️ Waste Management**: Recycling drives and waste reduction campaigns
-- **🦋 Wildlife Conservation**: Habitat restoration and wildlife protection activities
-- **🌍 Environmental Education**: Workshops and awareness campaigns
+The register page lets a user sign up as a Volunteer or a Host. Host permissions are enforced server-side in `lib/admin-auth.js`, not just hidden in the UI.
 
-## 🏆 Gamification & Rewards
+## Tech stack
 
-### EcoTokens System
-- **Earn**: Gain EcoTokens for attending events and environmental contributions
-- **Redeem**: Exchange tokens for eco-friendly rewards including:
-  - Reusable water bottles
-  - Plantable seed pencils  
-  - Organic tote bags
-  - Other sustainable products
+| Area | Choice |
+|---|---|
+| Framework | Next.js 15 (App Router), React 19, TypeScript |
+| Styling | Tailwind CSS 3.4, shadcn/ui on Radix primitives, lucide icons |
+| Data | PostgreSQL via Prisma 6 with the `pg` driver adapter |
+| Auth | JWT, bcryptjs password hashing |
+| Client state | TanStack Query, react-hook-form, sonner toasts |
+| Hosting | Cloudflare Workers via `@opennextjs/cloudflare`, Hyperdrive in front of Supabase Postgres |
 
-### Achievement Badges
-- **🌟 New Volunteer**: Welcome badge for joining the platform
-- **📝 Registered**: Badge for event registrations
-- **💚 Active Volunteer**: Earned after attending 5+ events
-- **🏆 Champion**: Elite status for 10+ event participation
-- **⭐ Reliable**: Recognition for 80%+ attendance rate
+## Getting started
 
-## 📚 Resource Library
+### Prerequisites
+- Node.js 18 or newer
+- A PostgreSQL database (local, or a Supabase project)
 
-Sproutify includes comprehensive guides for organizing environmental activities:
-- Step-by-step preparation guides
-- Safety measures and protocols
-- Best practices for environmental activities
-- Post-event impact measurement
-- Community engagement strategies
+### Setup
 
-## � Tech Stack
-
-- **Frontend**: Next.js 14+ with App Router, React 18, Tailwind CSS
-- **Backend**: Next.js API Routes, Prisma ORM  
-- **Database**: PostgreSQL
-- **Authentication**: JWT with bcrypt password hashing
-- **UI Framework**: Radix UI components with Tailwind CSS styling
-- **Icons**: Lucide React and FontAwesome
-- **Animations**: Framer Motion for smooth interactions
-- **QR Technology**: QR code generation and scanning functionality
-- **State Management**: React hooks and local storage
-- **Styling**: Custom gradients and responsive design
-
-## �📋 Prerequisites
-
-Before running this project, make sure you have:
-
-- Node.js 18+ installed
-- PostgreSQL database running
-- npm or yarn package manager
-
-## 🛠️ Installation
-
-## 🛠️ Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd sproutify
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Set up environment variables**
-   
-   Copy the `.env.example` file to `.env` and update the values:
-   ```bash
-   cp .env.example .env
-   ```
-   
-   Update the following variables in `.env`:
-   ```env
-   # Database
-   DATABASE_URL="postgresql://username:password@localhost:5432/sproutify"
-   
-   # JWT Secret (use a strong, random string)
-   JWT_SECRET="your-super-secret-jwt-key-here"
-   
-   # Base URL
-   NEXT_PUBLIC_BASE_URL="http://localhost:3000"
-   ```
-
-4. **Set up the database**
-   ```bash
-   # Generate Prisma client
-   npx prisma generate
-   
-   # Run database migrations
-   npx prisma db push
-   
-   # (Optional) Seed the database
-   npx prisma db seed
-   ```
-
-5. **Start the development server**
-   ```bash
-   npm run dev
-   ```
-
-   The application will be available at `http://localhost:3000`
-
-## 🗄️ Database Schema
-
-The application uses the following main entities:
-
-- **User**: Stores user information for both activists (admins) and volunteers with role-based access
-- **Event**: Environmental activity events with comprehensive details including type, location, safety instructions, and impact metrics  
-- **EventRegistration**: Tracks volunteer registrations for environmental activities
-- **Attendance**: Records actual participation via QR code check-ins and awards EcoTokens
-- **EcoTokens**: Gamification system tracking earned tokens for environmental contributions
-
-## 🔐 Authentication & Authorization
-
-- **JWT-based authentication** with secure token storage and session management
-- **Role-based access control** with two distinct user roles:
-  - **ADMIN**: Environmental activists who create and manage events
-  - **VOLUNTEER**: Community members who participate in environmental activities
-- **Protected routes** with comprehensive authentication guards
-- **Password security** using bcrypt hashing with salt rounds
-- **Token-based API authentication** for secure data access
-
-## 🎨 UI/UX Features
-
-- **🌍 Environmental Theme**: Nature-inspired color palette with teal and green gradients
-- **📱 Responsive Design**: Optimized for mobile, tablet, and desktop experiences
-- **⚡ Modern Interface**: Clean, intuitive design with smooth animations using Framer Motion
-- **🎯 Accessibility**: WCAG compliant with proper focus management and screen reader support
-- **🔄 Loading States**: Comprehensive loading indicators and error handling
-- **🎨 Component Library**: Custom Radix UI components with consistent styling
-- **📊 Data Visualization**: Interactive charts and progress indicators for impact tracking
-
-## 🧪 Development
-
-### Running in Development Mode
 ```bash
+git clone https://github.com/sanidhya1910/sproutify.git
+cd sproutify
+npm install
+cp .env.example .env
+```
+
+Edit `.env`:
+
+```env
+DATABASE_URL="postgresql://user:password@localhost:5432/sproutify"
+JWT_SECRET="a-long-random-string"
+NEXT_PUBLIC_BASE_URL="http://localhost:3000"
+```
+
+Create the schema and seed the reward catalogue:
+
+```bash
+npx prisma db push
+npx prisma db seed
 npm run dev
 ```
 
-### Database Management
+The app runs at http://localhost:3000.
+
+### Demo accounts
+
+The sign-in page lists three demo accounts: a volunteer (`sanidhya.ravi@example.com`), a host (`host@example.com`) and an admin (`admin@sproutify.local`). They share the password defined in `lib/demo.ts`. These exist for demos only and must not be created in an environment with real users.
+
+In demo mode, volunteer event registrations are stored in the browser's `localStorage` and cleared on logout. They never touch the database.
+
+## Scripts
+
+| Command | What it does |
+|---|---|
+| `npm run dev` | Start the dev server |
+| `npm run build` | Production build |
+| `npm run start` | Serve the production build |
+| `npm run lint` | Run ESLint |
+| `npm run preview` | Build for Workers and run it locally with wrangler |
+| `npm run deploy` | Build and deploy to Cloudflare Workers |
+| `npx prisma studio` | Browse the database |
+
+## Deploying to Cloudflare
+
+The app deploys as a Worker. Database access goes through a Hyperdrive binding declared in `wrangler.jsonc`.
+
 ```bash
-# View database in Prisma Studio
-npx prisma studio
-
-# Reset database
-npx prisma db push --force-reset
-
-# Generate new migration
-npx prisma migrate dev --name migration_name
+npm run deploy
 ```
 
-### Build for Production
-```bash
-npm run build
-npm run start
+Things to keep intact when changing the data layer:
+- Prisma on Workers uses the driver adapter and the `@prisma/client/wasm` build. `lib/prisma.js` picks the right client at runtime, so use `getPrisma()` rather than constructing a client.
+- Use the synchronous bcryptjs functions. The async variants silently return `false` under Workers.
+- Keep `serverExternalPackages: ['@prisma/client', '.prisma/client']` in `next.config.js`.
+
+## Project structure
+
+```
+app/
+  (marketing)/   Public pages: home, about, events, resources, contact
+  (auth)/        Login, register, unauthorized
+  (app)/         Signed-in app: volunteer/* and admin/* (hosts use admin/*)
+  api/           Route handlers: auth, public, volunteer, admin, checkin, contact
+  checkin/       Mobile-first QR check-in screen
+components/      UI primitives, patterns, chrome, auth guards, event form
+lib/             Prisma client, auth helpers, event types, demo data
+prisma/          Schema, migrations, reward seed
+scripts/         ComfyUI scripts used to generate site artwork
 ```
 
-## 🌟 Environmental Impact
+## Data model
 
-Sproutify has facilitated:
-- **1,150+ beaches cleaned** across various coastal regions
-- **200,000+ trees planted** through reforestation initiatives  
-- **15,000+ volunteers engaged** in environmental activities
-- **5,000+ pounds of waste collected** and properly disposed
-- **Countless lives inspired** to take environmental action
+`User`, `Event`, `EventRegistration`, `Attendance`, `Reward`, `Redemption` and `ContactMessage`, defined in `prisma/schema.prisma`. Events carry a category (`EventType`), a location, a time window, safety instructions and a creator, which is what scopes hosts to their own events. Attendance is recorded by QR check-in and awards EcoTokens.
 
-## 🤝 Contributing
+## Contributing
 
-We welcome contributions to make Sproutify even better! Here's how you can help:
+1. Fork the repository
+2. Create a branch: `git checkout -b feature/your-feature`
+3. Commit your changes
+4. Push the branch and open a pull request
 
-1. **Fork the repository**
-2. **Create a feature branch** (`git checkout -b feature/amazing-feature`)
-3. **Commit your changes** (`git commit -m 'Add some amazing feature'`)
-4. **Push to the branch** (`git push origin feature/amazing-feature`)
-5. **Open a Pull Request**
+## License
 
-## 🌟 Acknowledgments
-
-- Built with [Next.js](https://nextjs.org/) - The React Framework for Production
-- Database management with [Prisma](https://prisma.io/) - Next-generation ORM
-- UI components styled with [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
-- Component library from [Radix UI](https://www.radix-ui.com/) - Low-level UI primitives
-- Icons from [Lucide React](https://lucide.dev/) and [FontAwesome](https://fontawesome.com/)
-- Animations powered by [Framer Motion](https://www.framer.com/motion/)
-- Images from [Pexels](https://pexels.com/) - Free stock photos
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-**Made with � for a sustainable future and cleaner environment**
-
-*Join the Sproutify movement today and be part of the change our planet needs!*
+No license file is included in this repository yet.
